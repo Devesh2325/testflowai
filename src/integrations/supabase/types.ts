@@ -14,16 +14,441 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ai_history: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string | null
+          prompt: string
+          response: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string | null
+          prompt: string
+          response?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string | null
+          prompt?: string
+          response?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      bugs: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          linked_test_case: string | null
+          owner_id: string
+          priority: Database["public"]["Enums"]["bug_priority"]
+          project_id: string
+          run_id: string | null
+          severity: Database["public"]["Enums"]["bug_severity"]
+          status: Database["public"]["Enums"]["bug_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          linked_test_case?: string | null
+          owner_id: string
+          priority?: Database["public"]["Enums"]["bug_priority"]
+          project_id: string
+          run_id?: string | null
+          severity?: Database["public"]["Enums"]["bug_severity"]
+          status?: Database["public"]["Enums"]["bug_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          linked_test_case?: string | null
+          owner_id?: string
+          priority?: Database["public"]["Enums"]["bug_priority"]
+          project_id?: string
+          run_id?: string | null
+          severity?: Database["public"]["Enums"]["bug_severity"]
+          status?: Database["public"]["Enums"]["bug_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bugs_linked_test_case_fkey"
+            columns: ["linked_test_case"]
+            isOneToOne: false
+            referencedRelation: "test_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bugs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bugs_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "test_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          owner_id: string
+          project_id: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          owner_id: string
+          project_id: string
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          owner_id?: string
+          project_id?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      modules: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          project_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+          project_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "modules_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          owner_id: string
+          type: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          type?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      test_cases: {
+        Row: {
+          created_at: string
+          expected_result: string | null
+          id: string
+          module_id: string | null
+          owner_id: string
+          preconditions: string | null
+          priority: Database["public"]["Enums"]["test_priority"]
+          project_id: string
+          status: Database["public"]["Enums"]["test_status"]
+          steps: string | null
+          tags: string[] | null
+          title: string
+          type: Database["public"]["Enums"]["test_type"]
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          expected_result?: string | null
+          id?: string
+          module_id?: string | null
+          owner_id: string
+          preconditions?: string | null
+          priority?: Database["public"]["Enums"]["test_priority"]
+          project_id: string
+          status?: Database["public"]["Enums"]["test_status"]
+          steps?: string | null
+          tags?: string[] | null
+          title: string
+          type?: Database["public"]["Enums"]["test_type"]
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          expected_result?: string | null
+          id?: string
+          module_id?: string | null
+          owner_id?: string
+          preconditions?: string | null
+          priority?: Database["public"]["Enums"]["test_priority"]
+          project_id?: string
+          status?: Database["public"]["Enums"]["test_status"]
+          steps?: string | null
+          tags?: string[] | null
+          title?: string
+          type?: Database["public"]["Enums"]["test_type"]
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_cases_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_cases_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_executions: {
+        Row: {
+          browser: string | null
+          created_at: string
+          device: string | null
+          executed_at: string | null
+          id: string
+          notes: string | null
+          owner_id: string
+          run_id: string
+          screenshot_url: string | null
+          status: Database["public"]["Enums"]["execution_status"]
+          test_case_id: string
+        }
+        Insert: {
+          browser?: string | null
+          created_at?: string
+          device?: string | null
+          executed_at?: string | null
+          id?: string
+          notes?: string | null
+          owner_id: string
+          run_id: string
+          screenshot_url?: string | null
+          status?: Database["public"]["Enums"]["execution_status"]
+          test_case_id: string
+        }
+        Update: {
+          browser?: string | null
+          created_at?: string
+          device?: string | null
+          executed_at?: string | null
+          id?: string
+          notes?: string | null
+          owner_id?: string
+          run_id?: string
+          screenshot_url?: string | null
+          status?: Database["public"]["Enums"]["execution_status"]
+          test_case_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_executions_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "test_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_executions_test_case_id_fkey"
+            columns: ["test_case_id"]
+            isOneToOne: false
+            referencedRelation: "test_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_runs: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          owner_id: string
+          project_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          project_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          project_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_runs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "tester" | "viewer"
+      bug_priority: "low" | "medium" | "high" | "urgent"
+      bug_severity: "low" | "medium" | "high" | "critical"
+      bug_status: "open" | "in_progress" | "resolved" | "closed" | "reopened"
+      execution_status: "not_run" | "pass" | "fail" | "blocked" | "skipped"
+      test_priority: "low" | "medium" | "high" | "critical"
+      test_status: "draft" | "active" | "deprecated"
+      test_type:
+        | "functional"
+        | "regression"
+        | "smoke"
+        | "integration"
+        | "performance"
+        | "security"
+        | "usability"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +575,23 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "tester", "viewer"],
+      bug_priority: ["low", "medium", "high", "urgent"],
+      bug_severity: ["low", "medium", "high", "critical"],
+      bug_status: ["open", "in_progress", "resolved", "closed", "reopened"],
+      execution_status: ["not_run", "pass", "fail", "blocked", "skipped"],
+      test_priority: ["low", "medium", "high", "critical"],
+      test_status: ["draft", "active", "deprecated"],
+      test_type: [
+        "functional",
+        "regression",
+        "smoke",
+        "integration",
+        "performance",
+        "security",
+        "usability",
+      ],
+    },
   },
 } as const
