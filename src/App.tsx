@@ -15,8 +15,11 @@ import TestRuns from "./pages/app/TestRuns";
 import Bugs from "./pages/app/Bugs";
 import AIAssistant from "./pages/app/AIAssistant";
 import Learning from "./pages/app/Learning";
+import Reports from "./pages/app/Reports";
+import Integrations from "./pages/app/Integrations";
+import Settings from "./pages/app/Settings";
 import { Placeholder } from "./pages/app/Placeholder";
-import { BarChart3, BookOpen, Plug, Settings as SettingsIcon } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,10 +42,10 @@ const App = () => (
               <Route path="bugs" element={<Bugs />} />
               <Route path="ai" element={<AIAssistant />} />
               <Route path="learning" element={<Learning />} />
-              <Route path="reports" element={<Placeholder icon={BarChart3} title="Reports" desc="Drag & drop dashboards, scheduled exports." />} />
+              <Route path="reports" element={<Reports />} />
               <Route path="docs" element={<Placeholder icon={BookOpen} title="Documents" desc="Test plans, strategies, RTM — Notion-style editor." />} />
-              <Route path="integrations" element={<Placeholder icon={Plug} title="Integrations" desc="Selenium, Playwright, Jenkins, GitHub Actions, Slack, Teams." />} />
-              <Route path="settings" element={<Placeholder icon={SettingsIcon} title="Settings" desc="Workspace, members, roles, billing." />} />
+              <Route path="integrations" element={<Integrations />} />
+              <Route path="settings" element={<Settings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
