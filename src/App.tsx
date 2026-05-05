@@ -18,8 +18,7 @@ import Learning from "./pages/app/Learning";
 import Reports from "./pages/app/Reports";
 import Integrations from "./pages/app/Integrations";
 import Settings from "./pages/app/Settings";
-import { Placeholder } from "./pages/app/Placeholder";
-import { BookOpen } from "lucide-react";
+import Docs from "./pages/app/Docs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,7 +42,7 @@ const App = () => (
               <Route path="ai" element={<AIAssistant />} />
               <Route path="learning" element={<Learning />} />
               <Route path="reports" element={<Reports />} />
-              <Route path="docs" element={<Placeholder icon={BookOpen} title="Documents" desc="Test plans, strategies, RTM — Notion-style editor." />} />
+              <Route path="docs" element={<Docs />} />
               <Route path="integrations" element={<Integrations />} />
               <Route path="settings" element={<Settings />} />
             </Route>
