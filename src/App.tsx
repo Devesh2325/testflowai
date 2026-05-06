@@ -19,6 +19,7 @@ import Reports from "./pages/app/Reports";
 import Integrations from "./pages/app/Integrations";
 import Settings from "./pages/app/Settings";
 import Docs from "./pages/app/Docs";
+import Enquiries from "./pages/app/Enquiries";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="reports" element={<Reports />} />
               <Route path="docs" element={<Docs />} />
               <Route path="integrations" element={<Integrations />} />
+              <Route path="enquiries" element={<Enquiries />} />
               <Route path="settings" element={<Settings />} />
             </Route>
             <Route path="*" element={<NotFound />} />

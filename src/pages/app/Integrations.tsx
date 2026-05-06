@@ -75,6 +75,8 @@ const PROVIDERS: ProviderDef[] = [
   },
 ];
 
+type LogRow = { id: string; provider: string; title: string | null; status: string; error: string | null; created_at: string };
+
 export default function Integrations() {
   const { user } = useAuth();
   const [rows, setRows] = useState<Record<string, { enabled: boolean; config: any }>>({});
@@ -82,6 +84,13 @@ export default function Integrations() {
   const [editing, setEditing] = useState<ProviderDef | null>(null);
   const [docs, setDocs] = useState<ProviderDef | null>(null);
   const [draft, setDraft] = useState<Record<string, string>>({});
+  const [logs, setLogs] = useState<LogRow[]>([]);
+
+  const refreshLogs = async () => {
+    if (!user) return;
+    const { data } = await supabase.from("notification_log").select("id,provider,title,status,error,created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20);
+    setLogs((data ?? []) as any);
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -90,6 +99,7 @@ export default function Integrations() {
       const map: Record<string, { enabled: boolean; config: any }> = {};
       (data ?? []).forEach((r: any) => { map[r.provider] = { enabled: r.enabled, config: r.config ?? {} }; });
       setRows(map);
+      await refreshLogs();
       setLoading(false);
     })();
   }, [user]);
@@ -133,6 +143,7 @@ export default function Integrations() {
     const result = (data?.results ?? {})[p.id];
     if (!result) return toast.error("Provider didn't run — check config & enabled toggle");
     if (result.ok) toast.success(`${p.name}: delivered`); else toast.error(`${p.name}: ${result.error || result.status}`);
+    refreshLogs();
   };
 
   const grouped = PROVIDERS.reduce<Record<string, ProviderDef[]>>((acc, p) => {
@@ -143,7 +154,7 @@ export default function Integrations() {
     <div className="space-y-6 max-w-5xl">
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2"><Plug className="h-7 w-7 text-primary" />Integrations</h1>
-        <p className="text-muted-foreground">Connect TestFlow AI to your tools. Click the gear to configure, then enable.</p>
+        <p className="text-muted-foreground">Connect TestFlow AI to your tools. Configure → enable → test → see activity below.</p>
       </div>
 
       {loading ? <p className="text-sm text-muted-foreground">Loading…</p> : Object.entries(grouped).map(([cat, items]) => (
@@ -188,6 +199,31 @@ export default function Integrations() {
           </div>
         </div>
       ))}
+
+      <Card className="p-5">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold">Recent activity</h2>
+          <Button size="sm" variant="ghost" onClick={refreshLogs}>Refresh</Button>
+        </div>
+        {logs.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No notifications sent yet. Configure & test an integration above.</p>
+        ) : (
+          <div className="divide-y">
+            {logs.map(l => (
+              <div key={l.id} className="py-2 flex items-center justify-between text-sm">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Badge variant="outline" className="capitalize">{l.provider}</Badge>
+                  <span className="truncate">{l.title || "(no title)"}</span>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <Badge variant="outline" className={l.status === "sent" ? "bg-success/10 text-success border-success/20" : "bg-destructive/10 text-destructive border-destructive/20"}>{l.status}</Badge>
+                  <span className="text-xs text-muted-foreground">{new Date(l.created_at).toLocaleString()}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent className="max-w-md">

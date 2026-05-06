@@ -1,9 +1,15 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   Sparkles, Zap, Bug, BarChart3, GraduationCap, Bot, ShieldCheck,
-  ArrowRight, TestTube2, CheckCircle2, Workflow
+  ArrowRight, TestTube2, CheckCircle2, Workflow, Send
 } from "lucide-react";
 
 const features = [
@@ -16,6 +22,17 @@ const features = [
 ];
 
 export default function Landing() {
+  const [c, setC] = useState({ name: "", email: "", subject: "", message: "" });
+  const [sending, setSending] = useState(false);
+  const sendEnquiry = async () => {
+    if (!c.name || !c.email || !c.subject || !c.message) return toast.error("Please fill all fields");
+    setSending(true);
+    const { error } = await supabase.from("enquiries").insert(c);
+    setSending(false);
+    if (error) return toast.error(error.message);
+    toast.success("Thanks — we'll get back to you soon");
+    setC({ name: "", email: "", subject: "", message: "" });
+  };
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
@@ -31,6 +48,7 @@ export default function Landing() {
             <a href="#features" className="hover:text-foreground">Features</a>
             <a href="#ai" className="hover:text-foreground">AI</a>
             <a href="#learning" className="hover:text-foreground">Learning</a>
+            <a href="#contact" className="hover:text-foreground">Contact</a>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" asChild><Link to="/auth">Sign in</Link></Button>
@@ -107,6 +125,23 @@ export default function Landing() {
         <h2 className="text-4xl font-bold mb-4">Ready to <span className="text-gradient">level up your QA?</span></h2>
         <p className="text-muted-foreground mb-8">Join teams shipping faster with TestFlow AI.</p>
         <Button size="lg" asChild className="bg-gradient-hero border-0 shadow-glow"><Link to="/auth">Get started — it's free</Link></Button>
+      </section>
+
+      {/* Contact / Enquiry */}
+      <section id="contact" className="container py-20">
+        <div className="max-w-2xl mx-auto text-center mb-8">
+          <h2 className="text-4xl font-bold">Get in <span className="text-gradient">touch</span></h2>
+          <p className="text-muted-foreground mt-3">Questions, demos or feedback — drop us a note.</p>
+        </div>
+        <Card className="max-w-2xl mx-auto p-6 md:p-8 shadow-elegant">
+          <div className="grid md:grid-cols-2 gap-3">
+            <div><Label>Name</Label><Input value={c.name} onChange={e => setC({ ...c, name: e.target.value })} /></div>
+            <div><Label>Email</Label><Input type="email" value={c.email} onChange={e => setC({ ...c, email: e.target.value })} /></div>
+            <div className="md:col-span-2"><Label>Subject</Label><Input value={c.subject} onChange={e => setC({ ...c, subject: e.target.value })} /></div>
+            <div className="md:col-span-2"><Label>Message</Label><Textarea rows={4} value={c.message} onChange={e => setC({ ...c, message: e.target.value })} /></div>
+          </div>
+          <Button onClick={sendEnquiry} disabled={sending} className="mt-4 bg-gradient-hero border-0 gap-2"><Send className="h-4 w-4" />{sending ? "Sending…" : "Send enquiry"}</Button>
+        </Card>
       </section>
 
       <footer className="border-t py-8 text-center text-sm text-muted-foreground">

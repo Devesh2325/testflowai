@@ -41,46 +41,109 @@ export type Database = {
         }
         Relationships: []
       }
+      bug_comments: {
+        Row: {
+          author_email: string | null
+          body: string
+          bug_id: string
+          created_at: string
+          id: string
+          owner_id: string
+        }
+        Insert: {
+          author_email?: string | null
+          body: string
+          bug_id: string
+          created_at?: string
+          id?: string
+          owner_id: string
+        }
+        Update: {
+          author_email?: string | null
+          body?: string
+          bug_id?: string
+          created_at?: string
+          id?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
       bugs: {
         Row: {
+          actual_result: string | null
+          app_version: string | null
+          assignee_email: string | null
+          attachments: Json
+          browser: string | null
           created_at: string
           description: string | null
+          device: string | null
+          environment: string | null
+          expected_result: string | null
           id: string
           linked_test_case: string | null
+          module_id: string | null
           owner_id: string
           priority: Database["public"]["Enums"]["bug_priority"]
           project_id: string
+          reporter_email: string | null
           run_id: string | null
           severity: Database["public"]["Enums"]["bug_severity"]
           status: Database["public"]["Enums"]["bug_status"]
+          steps_to_reproduce: string | null
+          tags: string[]
           title: string
           updated_at: string
         }
         Insert: {
+          actual_result?: string | null
+          app_version?: string | null
+          assignee_email?: string | null
+          attachments?: Json
+          browser?: string | null
           created_at?: string
           description?: string | null
+          device?: string | null
+          environment?: string | null
+          expected_result?: string | null
           id?: string
           linked_test_case?: string | null
+          module_id?: string | null
           owner_id: string
           priority?: Database["public"]["Enums"]["bug_priority"]
           project_id: string
+          reporter_email?: string | null
           run_id?: string | null
           severity?: Database["public"]["Enums"]["bug_severity"]
           status?: Database["public"]["Enums"]["bug_status"]
+          steps_to_reproduce?: string | null
+          tags?: string[]
           title: string
           updated_at?: string
         }
         Update: {
+          actual_result?: string | null
+          app_version?: string | null
+          assignee_email?: string | null
+          attachments?: Json
+          browser?: string | null
           created_at?: string
           description?: string | null
+          device?: string | null
+          environment?: string | null
+          expected_result?: string | null
           id?: string
           linked_test_case?: string | null
+          module_id?: string | null
           owner_id?: string
           priority?: Database["public"]["Enums"]["bug_priority"]
           project_id?: string
+          reporter_email?: string | null
           run_id?: string | null
           severity?: Database["public"]["Enums"]["bug_severity"]
           status?: Database["public"]["Enums"]["bug_status"]
+          steps_to_reproduce?: string | null
+          tags?: string[]
           title?: string
           updated_at?: string
         }
@@ -187,6 +250,39 @@ export type Database = {
           },
         ]
       }
+      enquiries: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          status: string
+          subject: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          status?: string
+          subject: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          status?: string
+          subject?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       integrations: {
         Row: {
           config: Json
@@ -273,27 +369,75 @@ export type Database = {
           },
         ]
       }
+      notification_log: {
+        Row: {
+          created_at: string
+          error: string | null
+          id: string
+          message: string | null
+          payload: Json | null
+          provider: string
+          status: string
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          message?: string | null
+          payload?: Json | null
+          provider: string
+          status?: string
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          message?: string | null
+          payload?: Json | null
+          provider?: string
+          status?: string
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string
           email: string | null
           full_name: string | null
           id: string
+          job_title: string | null
+          phone: string | null
+          timezone: string | null
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id: string
+          job_title?: string | null
+          phone?: string | null
+          timezone?: string | null
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
+          job_title?: string | null
+          phone?: string | null
+          timezone?: string | null
         }
         Relationships: []
       }
