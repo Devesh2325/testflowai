@@ -143,6 +143,7 @@ export default function Integrations() {
     const result = (data?.results ?? {})[p.id];
     if (!result) return toast.error("Provider didn't run — check config & enabled toggle");
     if (result.ok) toast.success(`${p.name}: delivered`); else toast.error(`${p.name}: ${result.error || result.status}`);
+    refreshLogs();
   };
 
   const grouped = PROVIDERS.reduce<Record<string, ProviderDef[]>>((acc, p) => {
@@ -153,7 +154,7 @@ export default function Integrations() {
     <div className="space-y-6 max-w-5xl">
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2"><Plug className="h-7 w-7 text-primary" />Integrations</h1>
-        <p className="text-muted-foreground">Connect TestFlow AI to your tools. Click the gear to configure, then enable.</p>
+        <p className="text-muted-foreground">Connect TestFlow AI to your tools. Configure → enable → test → see activity below.</p>
       </div>
 
       {loading ? <p className="text-sm text-muted-foreground">Loading…</p> : Object.entries(grouped).map(([cat, items]) => (
