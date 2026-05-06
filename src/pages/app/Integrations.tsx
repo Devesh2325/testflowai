@@ -200,6 +200,31 @@ export default function Integrations() {
         </div>
       ))}
 
+      <Card className="p-5">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold">Recent activity</h2>
+          <Button size="sm" variant="ghost" onClick={refreshLogs}>Refresh</Button>
+        </div>
+        {logs.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No notifications sent yet. Configure & test an integration above.</p>
+        ) : (
+          <div className="divide-y">
+            {logs.map(l => (
+              <div key={l.id} className="py-2 flex items-center justify-between text-sm">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Badge variant="outline" className="capitalize">{l.provider}</Badge>
+                  <span className="truncate">{l.title || "(no title)"}</span>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <Badge variant="outline" className={l.status === "sent" ? "bg-success/10 text-success border-success/20" : "bg-destructive/10 text-destructive border-destructive/20"}>{l.status}</Badge>
+                  <span className="text-xs text-muted-foreground">{new Date(l.created_at).toLocaleString()}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>Configure {editing?.name}</DialogTitle><DialogDescription>Settings are stored securely per user.</DialogDescription></DialogHeader>
