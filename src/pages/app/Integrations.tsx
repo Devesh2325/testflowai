@@ -75,6 +75,8 @@ const PROVIDERS: ProviderDef[] = [
   },
 ];
 
+type LogRow = { id: string; provider: string; title: string | null; status: string; error: string | null; created_at: string };
+
 export default function Integrations() {
   const { user } = useAuth();
   const [rows, setRows] = useState<Record<string, { enabled: boolean; config: any }>>({});
@@ -82,6 +84,13 @@ export default function Integrations() {
   const [editing, setEditing] = useState<ProviderDef | null>(null);
   const [docs, setDocs] = useState<ProviderDef | null>(null);
   const [draft, setDraft] = useState<Record<string, string>>({});
+  const [logs, setLogs] = useState<LogRow[]>([]);
+
+  const refreshLogs = async () => {
+    if (!user) return;
+    const { data } = await supabase.from("notification_log").select("id,provider,title,status,error,created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20);
+    setLogs((data ?? []) as any);
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -90,6 +99,7 @@ export default function Integrations() {
       const map: Record<string, { enabled: boolean; config: any }> = {};
       (data ?? []).forEach((r: any) => { map[r.provider] = { enabled: r.enabled, config: r.config ?? {} }; });
       setRows(map);
+      await refreshLogs();
       setLoading(false);
     })();
   }, [user]);
