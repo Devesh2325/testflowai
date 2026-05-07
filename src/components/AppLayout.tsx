@@ -2,7 +2,8 @@ import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Input } from "@/components/ui/input";
-import { Search, Bell, Sparkles } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
+import NotificationsBell from "@/components/NotificationsBell";
 import { Button } from "@/components/ui/button";
 import { NavLink } from "react-router-dom";
 
@@ -22,7 +23,7 @@ export default function AppLayout() {
               <Button asChild size="sm" variant="outline" className="gap-1.5">
                 <NavLink to="/app/ai"><Sparkles className="h-4 w-4 text-primary" /> AI</NavLink>
               </Button>
-              <Button size="icon" variant="ghost"><Bell className="h-4 w-4" /></Button>
+              <NotificationsBell />
             </div>
           </header>
           <main className="flex-1 p-6 min-w-0"><Outlet /></main>

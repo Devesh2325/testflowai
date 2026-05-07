@@ -20,6 +20,8 @@ import Integrations from "./pages/app/Integrations";
 import Settings from "./pages/app/Settings";
 import Docs from "./pages/app/Docs";
 import Enquiries from "./pages/app/Enquiries";
+import MasterData from "./pages/app/MasterData";
+import Team from "./pages/app/Team";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +48,8 @@ const App = () => (
               <Route path="docs" element={<Docs />} />
               <Route path="integrations" element={<Integrations />} />
               <Route path="enquiries" element={<Enquiries />} />
+              <Route path="master-data" element={<MasterData />} />
+              <Route path="team" element={<Team />} />
               <Route path="settings" element={<Settings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
