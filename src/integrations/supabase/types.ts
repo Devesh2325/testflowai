@@ -313,6 +313,36 @@ export type Database = {
         }
         Relationships: []
       }
+      invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          id: string
+          invited_by: string
+          role: Database["public"]["Enums"]["app_role"]
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          invited_by: string
+          role?: Database["public"]["Enums"]["app_role"]
+          token?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          token?: string
+        }
+        Relationships: []
+      }
       learning_progress: {
         Row: {
           completed: boolean
@@ -405,6 +435,39 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          kind: string
+          link: string | null
+          read: boolean
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          link?: string | null
+          read?: boolean
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          link?: string | null
+          read?: boolean
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -468,6 +531,30 @@ export type Database = {
           owner_id?: string
           type?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      tags: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          label: string
+          owner_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          label: string
+          owner_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          label?: string
+          owner_id?: string
         }
         Relationships: []
       }
@@ -670,7 +757,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "tester" | "viewer"
+      app_role: "admin" | "tester" | "viewer" | "manager"
       bug_priority: "low" | "medium" | "high" | "urgent"
       bug_severity: "low" | "medium" | "high" | "critical"
       bug_status: "open" | "in_progress" | "resolved" | "closed" | "reopened"
@@ -812,7 +899,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "tester", "viewer"],
+      app_role: ["admin", "tester", "viewer", "manager"],
       bug_priority: ["low", "medium", "high", "urgent"],
       bug_severity: ["low", "medium", "high", "critical"],
       bug_status: ["open", "in_progress", "resolved", "closed", "reopened"],
