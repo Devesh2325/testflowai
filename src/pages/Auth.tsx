@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,8 +18,11 @@ const schema = z.object({
 
 export default function Auth() {
   const nav = useNavigate();
+  const [params] = useSearchParams();
+  const inviteToken = params.get("invite");
+  const inviteEmail = params.get("email");
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(inviteEmail ?? "");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
 
@@ -63,7 +66,12 @@ export default function Auth() {
           <span className="font-semibold text-xl">TestFlow AI</span>
         </Link>
         <Card className="p-6 shadow-elegant">
-          <Tabs defaultValue="login">
+          {inviteToken && (
+            <div className="mb-4 p-3 rounded-lg bg-primary/10 border border-primary/20 text-sm">
+              You've been invited! Create an account with <strong>{inviteEmail}</strong> to accept.
+            </div>
+          )}
+          <Tabs defaultValue={inviteToken ? "signup" : "login"}>
             <TabsList className="grid grid-cols-2 w-full mb-4">
               <TabsTrigger value="login">Sign in</TabsTrigger>
               <TabsTrigger value="signup">Create account</TabsTrigger>

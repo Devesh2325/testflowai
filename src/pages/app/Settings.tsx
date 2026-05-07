@@ -56,20 +56,25 @@ export default function Settings() {
   const save = async () => {
     if (!user) return;
     setSaving(true);
-    const { error } = await supabase.from("profiles").update({
-      full_name: p.full_name, phone: p.phone, bio: p.bio, job_title: p.job_title, timezone: p.timezone,
-    }).eq("id", user.id);
+    const { error } = await supabase.from("profiles").upsert({
+      id: user.id, email: user.email, full_name: p.full_name, phone: p.phone,
+      bio: p.bio, job_title: p.job_title, timezone: p.timezone,
+    });
     setSaving(false);
     if (error) toast.error(error.message); else toast.success("Profile saved");
   };
 
   const uploadAvatar = async (f: File) => {
     if (!user) return;
-    const path = `${user.id}/avatar-${Date.now()}.${f.name.split(".").pop()}`;
-    const { error } = await supabase.storage.from("avatars").upload(path, f, { upsert: true });
-    if (error) return toast.error(error.message);
+    const ext = f.name.split(".").pop()?.toLowerCase() || "png";
+    const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("avatars").upload(path, f, { upsert: true, contentType: f.type });
+    if (upErr) return toast.error(`Upload failed: ${upErr.message}`);
     const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
-    await supabase.from("profiles").update({ avatar_url: pub.publicUrl }).eq("id", user.id);
+    const { error: profErr } = await supabase.from("profiles").upsert({
+      id: user.id, email: user.email, avatar_url: pub.publicUrl,
+    });
+    if (profErr) return toast.error(profErr.message);
     setP(s => ({ ...s, avatar_url: pub.publicUrl }));
     toast.success("Avatar updated");
   };

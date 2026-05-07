@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, FolderKanban, FileText, PlayCircle, Bug,
-  BarChart3, Sparkles, BookOpen, GraduationCap, Plug, Settings, LogOut, TestTube2, MessageSquare
+  BarChart3, Sparkles, BookOpen, GraduationCap, Plug, Settings, LogOut, TestTube2, MessageSquare, Database, Users
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -24,6 +24,8 @@ const ai = [
   { title: "Learning", url: "/app/learning", icon: GraduationCap },
 ];
 const sys = [
+  { title: "Master Data", url: "/app/master-data", icon: Database },
+  { title: "Team", url: "/app/team", icon: Users },
   { title: "Integrations", url: "/app/integrations", icon: Plug },
   { title: "Enquiries", url: "/app/enquiries", icon: MessageSquare },
   { title: "Settings", url: "/app/settings", icon: Settings },
