@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Plus, Bug as BugIcon, Paperclip, X, Send, Image as ImageIcon, Trash2, ExternalLink } from "lucide-react";
+import { Plus, Bug as BugIcon, Paperclip, X, Send, Image as ImageIcon, Trash2, ExternalLink, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 type Attachment = { name: string; path: string; url: string; type: string };
@@ -55,6 +55,45 @@ export default function Bugs() {
   });
   const fileRef = useRef<HTMLInputElement>(null);
   const fileRefDetail = useRef<HTMLInputElement>(null);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const autofillFromTC = (tcId: string) => {
+    const tc = tcs.find(t => t.id === tcId);
+    if (!tc) return;
+    setForm((f: any) => ({
+      ...f, linked_test_case: tcId,
+      title: f.title || `Bug in: ${tc.title}`,
+      description: f.description || `Issue found while executing test case "${tc.title}".`,
+    }));
+  };
+
+  const generateWithAI = async () => {
+    if (!aiPrompt.trim()) return toast.error("Describe the bug first");
+    setAiLoading(true);
+    const tc = tcs.find(t => t.id === form.linked_test_case);
+    const { data, error } = await supabase.functions.invoke("generate-bug", {
+      body: { description: aiPrompt, test_case_title: tc?.title },
+    });
+    setAiLoading(false);
+    if (error) return toast.error(error.message);
+    const b = data?.bug ?? {};
+    setForm((f: any) => ({
+      ...f,
+      title: b.title || f.title,
+      description: b.description || f.description,
+      severity: b.severity || f.severity,
+      priority: b.priority || f.priority,
+      steps_to_reproduce: b.steps_to_reproduce || f.steps_to_reproduce,
+      expected_result: b.expected_result || f.expected_result,
+      actual_result: b.actual_result || f.actual_result,
+      environment: b.environment || f.environment,
+      browser: b.browser || f.browser,
+      device: b.device || f.device,
+      app_version: b.app_version || f.app_version,
+    }));
+    toast.success("AI filled the form — review & submit");
+  };
 
   const load = async () => {
     const [b, p, m, t] = await Promise.all([
