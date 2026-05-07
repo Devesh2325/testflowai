@@ -203,6 +203,14 @@ export default function Bugs() {
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader><DialogTitle>Log a bug</DialogTitle></DialogHeader>
             <div className="space-y-3">
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+                <div className="flex items-center gap-2 text-sm font-medium"><Sparkles className="h-4 w-4 text-primary" />Generate with AI</div>
+                <Textarea rows={2} placeholder="Describe what went wrong, e.g. 'Login button not responding on Safari iOS 17 after entering credentials…'" value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} />
+                <Button size="sm" onClick={generateWithAI} disabled={aiLoading} className="gap-2">
+                  {aiLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                  {aiLoading ? "Generating…" : "Auto-fill form"}
+                </Button>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div><Label>Project</Label>
                   <Select value={form.project_id} onValueChange={v => setForm({ ...form, project_id: v, module_id: "", linked_test_case: "" })}>
@@ -233,7 +241,7 @@ export default function Bugs() {
                   </Select>
                 </div>
                 <div><Label>Linked test case</Label>
-                  <Select value={form.linked_test_case} onValueChange={v => setForm({ ...form, linked_test_case: v })}>
+                  <Select value={form.linked_test_case} onValueChange={autofillFromTC}>
                     <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
                     <SelectContent>{tcs.filter(t => t.project_id === form.project_id).map(t => <SelectItem key={t.id} value={t.id}>{t.title}</SelectItem>)}</SelectContent>
                   </Select>
