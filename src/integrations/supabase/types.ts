@@ -100,7 +100,7 @@ export type Database = {
           tags: string[]
           title: string
           updated_at: string
-          workspace_id: string
+          workspace_id: string | null
         }
         Insert: {
           actual_result?: string | null
@@ -127,7 +127,7 @@ export type Database = {
           tags?: string[]
           title: string
           updated_at?: string
-          workspace_id: string
+          workspace_id?: string | null
         }
         Update: {
           actual_result?: string | null
@@ -154,7 +154,7 @@ export type Database = {
           tags?: string[]
           title?: string
           updated_at?: string
-          workspace_id?: string
+          workspace_id?: string | null
         }
         Relationships: [
           {
@@ -398,7 +398,7 @@ export type Database = {
           name: string
           owner_id: string
           project_id: string
-          workspace_id: string
+          workspace_id: string | null
         }
         Insert: {
           created_at?: string
@@ -406,7 +406,7 @@ export type Database = {
           name: string
           owner_id: string
           project_id: string
-          workspace_id: string
+          workspace_id?: string | null
         }
         Update: {
           created_at?: string
@@ -414,7 +414,7 @@ export type Database = {
           name?: string
           owner_id?: string
           project_id?: string
-          workspace_id?: string
+          workspace_id?: string | null
         }
         Relationships: [
           {
@@ -549,7 +549,7 @@ export type Database = {
           owner_id: string
           type: string | null
           updated_at: string
-          workspace_id: string
+          workspace_id: string | null
         }
         Insert: {
           created_at?: string
@@ -559,7 +559,7 @@ export type Database = {
           owner_id: string
           type?: string | null
           updated_at?: string
-          workspace_id: string
+          workspace_id?: string | null
         }
         Update: {
           created_at?: string
@@ -569,7 +569,7 @@ export type Database = {
           owner_id?: string
           type?: string | null
           updated_at?: string
-          workspace_id?: string
+          workspace_id?: string | null
         }
         Relationships: []
       }
@@ -617,7 +617,7 @@ export type Database = {
           type: Database["public"]["Enums"]["test_type"]
           updated_at: string
           version: number
-          workspace_id: string
+          workspace_id: string | null
         }
         Insert: {
           created_at?: string
@@ -635,7 +635,7 @@ export type Database = {
           type?: Database["public"]["Enums"]["test_type"]
           updated_at?: string
           version?: number
-          workspace_id: string
+          workspace_id?: string | null
         }
         Update: {
           created_at?: string
@@ -653,7 +653,7 @@ export type Database = {
           type?: Database["public"]["Enums"]["test_type"]
           updated_at?: string
           version?: number
-          workspace_id?: string
+          workspace_id?: string | null
         }
         Relationships: [
           {
@@ -742,7 +742,7 @@ export type Database = {
           project_id: string
           status: string
           updated_at: string
-          workspace_id: string
+          workspace_id: string | null
         }
         Insert: {
           created_at?: string
@@ -753,7 +753,7 @@ export type Database = {
           project_id: string
           status?: string
           updated_at?: string
-          workspace_id: string
+          workspace_id?: string | null
         }
         Update: {
           created_at?: string
@@ -764,7 +764,7 @@ export type Database = {
           project_id?: string
           status?: string
           updated_at?: string
-          workspace_id?: string
+          workspace_id?: string | null
         }
         Relationships: [
           {
