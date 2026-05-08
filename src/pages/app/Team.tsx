@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useWorkspace } from "@/hooks/useWorkspace";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, Send, Trash2, Copy, Check } from "lucide-react";
+import { Users, Send, Trash2, Copy, Check, Building2 } from "lucide-react";
 import { toast } from "sonner";
 
 type Invite = { id: string; email: string; role: string; token: string; accepted_at: string | null; created_at: string };
@@ -17,39 +18,42 @@ const ROLES = ["admin", "manager", "tester", "viewer"];
 
 export default function Team() {
   const { user } = useAuth();
+  const { current, refresh: refreshWs } = useWorkspace();
   const [invites, setInvites] = useState<Invite[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("tester");
   const [copied, setCopied] = useState<string | null>(null);
-  const [myRole, setMyRole] = useState<string>("");
+
+  const myRole = members.find(m => m.user_id === user?.id)?.role ?? "tester";
+  const isAdmin = myRole === "admin" || current?.owner_id === user?.id;
 
   const load = async () => {
-    if (!user) return;
-    const [{ data: inv }, { data: roles }, { data: mine }] = await Promise.all([
-      supabase.from("invitations").select("*").eq("invited_by", user.id).order("created_at", { ascending: false }),
-      supabase.from("user_roles").select("user_id, role"),
-      supabase.from("user_roles").select("role").eq("user_id", user.id).maybeSingle(),
+    if (!user || !current) return;
+    const [{ data: inv }, { data: mems }] = await Promise.all([
+      supabase.from("invitations").select("*").eq("workspace_id", current.id).order("created_at", { ascending: false }),
+      supabase.from("workspace_members").select("user_id, role").eq("workspace_id", current.id),
     ]);
     setInvites((inv ?? []) as any);
-    setMyRole(mine?.role ?? "tester");
-    if (roles && roles.length) {
-      const ids = roles.map((r: any) => r.user_id);
+    if (mems && mems.length) {
+      const ids = mems.map((m: any) => m.user_id);
       const { data: profs } = await supabase.from("profiles").select("id,email,full_name").in("id", ids);
       const map = Object.fromEntries((profs ?? []).map((p: any) => [p.id, p]));
-      setMembers(roles.map((r: any) => ({ user_id: r.user_id, role: r.role, email: map[r.user_id]?.email ?? null, full_name: map[r.user_id]?.full_name ?? null })));
+      setMembers(mems.map((m: any) => ({ user_id: m.user_id, role: m.role, email: map[m.user_id]?.email ?? null, full_name: map[m.user_id]?.full_name ?? null })));
     } else setMembers([]);
   };
-  useEffect(() => { load(); }, [user]);
+  useEffect(() => { load(); }, [user, current?.id]);
 
   const invite = async () => {
-    if (!user || !email) return;
-    const { data, error } = await supabase.from("invitations").insert({ invited_by: user.id, email: email.trim().toLowerCase(), role: role as any }).select().maybeSingle();
+    if (!user || !email || !current) return;
+    const { data, error } = await supabase.from("invitations").insert({
+      invited_by: user.id, email: email.trim().toLowerCase(), role: role as any, workspace_id: current.id,
+    }).select().maybeSingle();
     if (error) return toast.error(error.message);
     setEmail("");
     const link = `${window.location.origin}/auth?invite=${data!.token}&email=${encodeURIComponent(email)}`;
     await supabase.functions.invoke("send-notification", {
-      body: { title: "You've been invited to TestFlow AI", message: `Open this link to accept: ${link}` },
+      body: { title: `Invitation to ${current.name}`, message: `Open this link to accept: ${link}` },
     }).catch(() => {});
     toast.success("Invitation created — link copied");
     navigator.clipboard.writeText(link).catch(() => {});
@@ -66,23 +70,34 @@ export default function Team() {
   const revoke = async (id: string) => { await supabase.from("invitations").delete().eq("id", id); load(); };
 
   const setMemberRole = async (uid: string, newRole: string) => {
-    if (myRole !== "admin") return toast.error("Only admins can change roles");
-    await supabase.from("user_roles").delete().eq("user_id", uid);
-    const { error } = await supabase.from("user_roles").insert({ user_id: uid, role: newRole as any });
+    if (!isAdmin || !current) return toast.error("Only admins can change roles");
+    const { error } = await supabase.from("workspace_members").update({ role: newRole as any }).eq("workspace_id", current.id).eq("user_id", uid);
     if (error) return toast.error(error.message);
     toast.success("Role updated");
     load();
   };
 
+  const removeMember = async (uid: string) => {
+    if (!isAdmin || !current) return;
+    if (uid === current.owner_id) return toast.error("Cannot remove workspace owner");
+    await supabase.from("workspace_members").delete().eq("workspace_id", current.id).eq("user_id", uid);
+    toast.success("Member removed");
+    load();
+  };
+
+  if (!current) return <div className="p-6 text-muted-foreground">Loading workspace…</div>;
+
   return (
     <div className="space-y-6 max-w-5xl">
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2"><Users className="h-7 w-7 text-primary" />Team & Invites</h1>
-        <p className="text-muted-foreground">Invite teammates, manage roles, and copy invitation links.</p>
+        <p className="text-muted-foreground flex items-center gap-2">
+          <Building2 className="h-4 w-4" /> Workspace: <span className="font-medium text-foreground">{current.name}</span>
+        </p>
       </div>
 
       <Card className="p-6">
-        <h2 className="font-semibold mb-4">Invite a teammate</h2>
+        <h2 className="font-semibold mb-4">Invite a teammate to this workspace</h2>
         <div className="flex gap-2 items-end">
           <div className="flex-1"><Label>Email</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="teammate@company.com" /></div>
           <div className="w-40"><Label>Role</Label>
@@ -93,7 +108,7 @@ export default function Team() {
           </div>
           <Button onClick={invite} className="gap-2 bg-gradient-hero border-0"><Send className="h-4 w-4" />Send invite</Button>
         </div>
-        <p className="text-xs text-muted-foreground mt-2">A secure invite link is generated and copied to your clipboard. The role is applied automatically when they sign up.</p>
+        <p className="text-xs text-muted-foreground mt-2">When they sign up, they'll be added to <strong>{current.name}</strong> as {role} and will see all data in this workspace.</p>
       </Card>
 
       <Card className="p-6">
@@ -119,26 +134,32 @@ export default function Team() {
       </Card>
 
       <Card className="p-6">
-        <h2 className="font-semibold mb-4">Members</h2>
+        <h2 className="font-semibold mb-4">Workspace members</h2>
         {members.length === 0 ? <p className="text-sm text-muted-foreground">No members yet.</p> : (
           <div className="space-y-2">
             {members.map(m => (
               <div key={m.user_id} className="flex items-center gap-3 border rounded-lg p-3">
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm">{m.full_name || m.email || m.user_id.slice(0, 8)}</div>
+                  <div className="font-medium text-sm">
+                    {m.full_name || m.email || m.user_id.slice(0, 8)}
+                    {m.user_id === current.owner_id && <Badge variant="outline" className="ml-2 text-[10px]">Owner</Badge>}
+                  </div>
                   <div className="text-xs text-muted-foreground">{m.email}</div>
                 </div>
-                {myRole === "admin" ? (
+                {isAdmin && m.user_id !== current.owner_id ? (
                   <Select value={m.role} onValueChange={v => setMemberRole(m.user_id, v)}>
                     <SelectTrigger className="w-32 h-8"><SelectValue /></SelectTrigger>
                     <SelectContent>{ROLES.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
                   </Select>
                 ) : <Badge variant="outline" className="capitalize">{m.role}</Badge>}
+                {isAdmin && m.user_id !== current.owner_id && (
+                  <Button size="icon" variant="ghost" onClick={() => removeMember(m.user_id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                )}
               </div>
             ))}
           </div>
         )}
-        {myRole !== "admin" && <p className="text-xs text-muted-foreground mt-3">Only admins can change member roles.</p>}
+        {!isAdmin && <p className="text-xs text-muted-foreground mt-3">Only workspace admins can change member roles.</p>}
       </Card>
     </div>
   );
