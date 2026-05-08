@@ -4,11 +4,14 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Input } from "@/components/ui/input";
 import { Search, Sparkles } from "lucide-react";
 import NotificationsBell from "@/components/NotificationsBell";
+import WorkspaceSwitcher from "@/components/WorkspaceSwitcher";
 import { Button } from "@/components/ui/button";
 import { NavLink } from "react-router-dom";
+import { WorkspaceProvider } from "@/hooks/useWorkspace";
 
 export default function AppLayout() {
   return (
+    <WorkspaceProvider>
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gradient-subtle">
         <AppSidebar />
@@ -20,6 +23,7 @@ export default function AppLayout() {
               <Input placeholder="Search test cases, bugs, docs…" className="pl-9 h-9 bg-secondary/60 border-transparent focus-visible:bg-background" />
             </div>
             <div className="ml-auto flex items-center gap-2">
+              <WorkspaceSwitcher />
               <Button asChild size="sm" variant="outline" className="gap-1.5">
                 <NavLink to="/app/ai"><Sparkles className="h-4 w-4 text-primary" /> AI</NavLink>
               </Button>
@@ -30,5 +34,6 @@ export default function AppLayout() {
         </div>
       </div>
     </SidebarProvider>
+    </WorkspaceProvider>
   );
 }
