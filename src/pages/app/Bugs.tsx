@@ -316,26 +316,47 @@ export default function Bugs() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {COLS.map(col => (
-          <div key={col} className="space-y-2">
+          <div
+            key={col}
+            className={`space-y-2 rounded-lg p-2 transition-colors ${dragOver === col ? "bg-primary/10 ring-2 ring-primary/40" : ""}`}
+            onDragOver={e => { e.preventDefault(); setDragOver(col); }}
+            onDragLeave={() => setDragOver(d => (d === col ? null : d))}
+            onDrop={async e => {
+              e.preventDefault();
+              setDragOver(null);
+              if (dragId) { await move(dragId, col); setDragId(null); }
+            }}
+          >
             <div className="flex items-center justify-between px-1">
               <h3 className="font-semibold capitalize text-sm">{col.replace("_", " ")}</h3>
               <Badge variant="secondary" className="text-[10px]">{bugs.filter(b => b.status === col).length}</Badge>
             </div>
             <div className="space-y-2 min-h-[200px]">
               {bugs.filter(b => b.status === col).map(b => (
-                <Card key={b.id} className="p-3 hover:shadow-elegant transition-all cursor-pointer" onClick={() => openDetail(b)}>
+                <Card
+                  key={b.id}
+                  draggable
+                  onDragStart={() => setDragId(b.id)}
+                  onDragEnd={() => setDragId(null)}
+                  className={`p-3 hover:shadow-elegant transition-all cursor-grab active:cursor-grabbing ${dragId === b.id ? "opacity-50" : ""}`}
+                  onClick={() => openDetail(b)}
+                >
                   <div className="flex items-start gap-2 mb-2">
                     <BugIcon className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
                     <div className="font-medium text-sm leading-tight flex-1">{b.title}</div>
                   </div>
                   <div className="flex flex-wrap gap-1 mb-2">
-                    <Badge variant="outline" className={`text-[10px] ${sevColor[b.severity]}`}>{b.severity}</Badge>
+                    <Badge variant="outline" className={`text-[10px] ${sevColor[b.severity]}`}>{cap(b.severity)}</Badge>
+                    <Badge variant="outline" className="text-[10px]">{cap(b.priority)}</Badge>
                     {b.module_id && moduleMap[b.module_id] && <Badge variant="outline" className="text-[10px]">{moduleMap[b.module_id]}</Badge>}
                     {b.attachments?.length > 0 && <Badge variant="outline" className="text-[10px] gap-1"><Paperclip className="h-2.5 w-2.5" />{b.attachments.length}</Badge>}
                   </div>
+                  {b.assignee_email && (
+                    <div className="text-[11px] text-muted-foreground mb-1">Assigned: <span className="text-foreground font-medium">{memberLabel(b.assignee_email)}</span></div>
+                  )}
                   <div className="flex gap-1 flex-wrap" onClick={e => e.stopPropagation()}>
                     {COLS.filter(c => c !== col).map(c => (
-                      <Button key={c} size="sm" variant="ghost" className="h-6 px-2 text-[10px]" onClick={() => move(b.id, c)}>{c.replace("_", " ")}</Button>
+                      <Button key={c} size="sm" variant="ghost" className="h-6 px-2 text-[10px]" onClick={() => move(b.id, c)}>{cap(c)}</Button>
                     ))}
                   </div>
                 </Card>
