@@ -254,19 +254,23 @@ export default function Bugs() {
                 <div><Label>Severity</Label>
                   <Select value={form.severity} onValueChange={v => setForm({ ...form, severity: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{["low", "medium", "high", "critical"].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+                    <SelectContent>{["low", "medium", "high", "critical"].map(p => <SelectItem key={p} value={p}>{cap(p)}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
                 <div><Label>Priority</Label>
                   <Select value={form.priority} onValueChange={v => setForm({ ...form, priority: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{["low", "medium", "high", "urgent"].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+                    <SelectContent>{["low", "medium", "high", "urgent"].map(p => <SelectItem key={p} value={p}>{cap(p)}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
-                <div><Label>Linked test case</Label>
+                <div><Label>Linked Test Case</Label>
                   <Select value={form.linked_test_case} onValueChange={autofillFromTC}>
-                    <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
-                    <SelectContent>{tcs.filter(t => t.project_id === form.project_id).map(t => <SelectItem key={t.id} value={t.id}>{t.title}</SelectItem>)}</SelectContent>
+                    <SelectTrigger><SelectValue placeholder="Select test case" /></SelectTrigger>
+                    <SelectContent>
+                      {tcs.filter(t => t.project_id === form.project_id).length === 0
+                        ? <div className="px-2 py-1.5 text-xs text-muted-foreground">No test cases for this project</div>
+                        : tcs.filter(t => t.project_id === form.project_id).map(t => <SelectItem key={t.id} value={t.id}>{t.title}</SelectItem>)}
+                    </SelectContent>
                   </Select>
                 </div>
               </div>
