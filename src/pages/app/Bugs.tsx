@@ -109,19 +109,29 @@ export default function Bugs() {
   };
 
   const load = async () => {
-    const [b, p, m, t] = await Promise.all([
+    const [b, p, m, t, prof] = await Promise.all([
       supabase.from("bugs").select("*").order("created_at", { ascending: false }),
       supabase.from("projects").select("id,name"),
       supabase.from("modules").select("id,name,project_id"),
       supabase.from("test_cases").select("id,title,project_id"),
+      supabase.from("profiles").select("id,current_workspace_id").eq("id", user?.id ?? "").maybeSingle(),
     ]);
     setBugs((b.data ?? []) as any);
     setProjects(p.data ?? []);
     setModules(m.data ?? []);
     setTCs(t.data ?? []);
     if (p.data?.[0] && !form.project_id) setForm((f: any) => ({ ...f, project_id: p.data![0].id }));
+    const wsId = (prof.data as any)?.current_workspace_id;
+    if (wsId) {
+      const { data: wms } = await supabase.from("workspace_members").select("user_id").eq("workspace_id", wsId);
+      const ids = (wms ?? []).map((x: any) => x.user_id);
+      if (ids.length) {
+        const { data: profs } = await supabase.from("profiles").select("id,email,full_name").in("id", ids);
+        setMembers((profs ?? []).map((p: any) => ({ user_id: p.id, email: p.email, full_name: p.full_name })));
+      }
+    }
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [user?.id]);
 
   const loadComments = async (bugId: string) => {
     const { data } = await supabase.from("bug_comments").select("*").eq("bug_id", bugId).order("created_at");
