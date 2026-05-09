@@ -375,26 +375,53 @@ export default function Bugs() {
               </SheetHeader>
               <div className="space-y-4 mt-4">
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="outline" className={sevColor[active.severity]}>severity: {active.severity}</Badge>
-                  <Badge variant="outline">priority: {active.priority}</Badge>
+                  <Badge variant="outline" className={sevColor[active.severity]}>Severity: {cap(active.severity)}</Badge>
+                  <Badge variant="outline">Priority: {cap(active.priority)}</Badge>
                   <Badge variant="outline">{projectMap[active.project_id]}</Badge>
                   {active.module_id && <Badge variant="outline">{moduleMap[active.module_id]}</Badge>}
                   {active.linked_test_case && <Badge variant="outline">TC: {tcMap[active.linked_test_case]}</Badge>}
                 </div>
 
                 <div className="grid grid-cols-3 gap-2">
-                  <Select value={active.status} onValueChange={v => updateBug(active.id, { status: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{COLS.map(c => <SelectItem key={c} value={c}>{c.replace("_", " ")}</SelectItem>)}</SelectContent>
-                  </Select>
-                  <Select value={active.severity} onValueChange={v => updateBug(active.id, { severity: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{["low", "medium", "high", "critical"].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
-                  </Select>
-                  <Select value={active.priority} onValueChange={v => updateBug(active.id, { priority: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{["low", "medium", "high", "urgent"].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
-                  </Select>
+                  <div><Label className="text-xs">Status</Label>
+                    <Select value={active.status} onValueChange={v => updateBug(active.id, { status: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>{COLS.map(c => <SelectItem key={c} value={c}>{cap(c)}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div><Label className="text-xs">Severity</Label>
+                    <Select value={active.severity} onValueChange={v => updateBug(active.id, { severity: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>{["low", "medium", "high", "critical"].map(p => <SelectItem key={p} value={p}>{cap(p)}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div><Label className="text-xs">Priority</Label>
+                    <Select value={active.priority} onValueChange={v => updateBug(active.id, { priority: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>{["low", "medium", "high", "urgent"].map(p => <SelectItem key={p} value={p}>{cap(p)}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div><Label className="text-xs">Assign To (User Name)</Label>
+                    <Select value={active.assignee_email || "__none__"} onValueChange={v => updateBug(active.id, { assignee_email: v === "__none__" ? null : v })}>
+                      <SelectTrigger><SelectValue placeholder="Unassigned" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">Unassigned</SelectItem>
+                        {members.map(m => <SelectItem key={m.user_id} value={m.email ?? m.user_id}>{m.full_name || m.email}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div><Label className="text-xs">Linked Test Case</Label>
+                    <Select value={active.linked_test_case || "__none__"} onValueChange={v => updateBug(active.id, { linked_test_case: v === "__none__" ? null : v })}>
+                      <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">None</SelectItem>
+                        {tcs.filter(t => t.project_id === active.project_id).map(t => <SelectItem key={t.id} value={t.id}>{t.title}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 {active.description && <Section label="Description"><p className="text-sm whitespace-pre-wrap">{active.description}</p></Section>}
