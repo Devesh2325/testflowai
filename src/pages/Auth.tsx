@@ -63,6 +63,7 @@ export default function Auth() {
     if (!parsed.success) return toast.error(parsed.error.errors[0].message);
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (!error && inviteToken) await claimInvite();
     setLoading(false);
     if (error) return toast.error(error.message);
     nav("/app");
