@@ -36,16 +36,23 @@ const sevColor: Record<string, string> = {
   low: "bg-muted text-muted-foreground",
 };
 
+type Member = { user_id: string; email: string | null; full_name: string | null };
+
+const cap = (s: string) => s.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
 export default function Bugs() {
   const { user } = useAuth();
   const [bugs, setBugs] = useState<Bug[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [modules, setModules] = useState<Module[]>([]);
   const [tcs, setTCs] = useState<TC[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<Bug | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState<string | null>(null);
   const [form, setForm] = useState<any>({
     title: "", description: "", severity: "medium", priority: "medium",
     project_id: "", module_id: "", linked_test_case: "",
@@ -57,6 +64,12 @@ export default function Bugs() {
   const fileRefDetail = useRef<HTMLInputElement>(null);
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+
+  const memberLabel = (em: string | null | undefined) => {
+    if (!em) return "—";
+    const m = members.find(x => x.email?.toLowerCase() === em.toLowerCase());
+    return m?.full_name || m?.email || em;
+  };
 
   const autofillFromTC = (tcId: string) => {
     const tc = tcs.find(t => t.id === tcId);
