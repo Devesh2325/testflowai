@@ -36,16 +36,23 @@ const sevColor: Record<string, string> = {
   low: "bg-muted text-muted-foreground",
 };
 
+type Member = { user_id: string; email: string | null; full_name: string | null };
+
+const cap = (s: string) => s.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
 export default function Bugs() {
   const { user } = useAuth();
   const [bugs, setBugs] = useState<Bug[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [modules, setModules] = useState<Module[]>([]);
   const [tcs, setTCs] = useState<TC[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<Bug | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState<string | null>(null);
   const [form, setForm] = useState<any>({
     title: "", description: "", severity: "medium", priority: "medium",
     project_id: "", module_id: "", linked_test_case: "",
@@ -57,6 +64,12 @@ export default function Bugs() {
   const fileRefDetail = useRef<HTMLInputElement>(null);
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+
+  const memberLabel = (em: string | null | undefined) => {
+    if (!em) return "—";
+    const m = members.find(x => x.email?.toLowerCase() === em.toLowerCase());
+    return m?.full_name || m?.email || em;
+  };
 
   const autofillFromTC = (tcId: string) => {
     const tc = tcs.find(t => t.id === tcId);
@@ -96,19 +109,29 @@ export default function Bugs() {
   };
 
   const load = async () => {
-    const [b, p, m, t] = await Promise.all([
+    const [b, p, m, t, prof] = await Promise.all([
       supabase.from("bugs").select("*").order("created_at", { ascending: false }),
       supabase.from("projects").select("id,name"),
       supabase.from("modules").select("id,name,project_id"),
       supabase.from("test_cases").select("id,title,project_id"),
+      supabase.from("profiles").select("id,current_workspace_id").eq("id", user?.id ?? "").maybeSingle(),
     ]);
     setBugs((b.data ?? []) as any);
     setProjects(p.data ?? []);
     setModules(m.data ?? []);
     setTCs(t.data ?? []);
     if (p.data?.[0] && !form.project_id) setForm((f: any) => ({ ...f, project_id: p.data![0].id }));
+    const wsId = (prof.data as any)?.current_workspace_id;
+    if (wsId) {
+      const { data: wms } = await supabase.from("workspace_members").select("user_id").eq("workspace_id", wsId);
+      const ids = (wms ?? []).map((x: any) => x.user_id);
+      if (ids.length) {
+        const { data: profs } = await supabase.from("profiles").select("id,email,full_name").in("id", ids);
+        setMembers((profs ?? []).map((p: any) => ({ user_id: p.id, email: p.email, full_name: p.full_name })));
+      }
+    }
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [user?.id]);
 
   const loadComments = async (bugId: string) => {
     const { data } = await supabase.from("bug_comments").select("*").eq("bug_id", bugId).order("created_at");
@@ -231,19 +254,23 @@ export default function Bugs() {
                 <div><Label>Severity</Label>
                   <Select value={form.severity} onValueChange={v => setForm({ ...form, severity: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{["low", "medium", "high", "critical"].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+                    <SelectContent>{["low", "medium", "high", "critical"].map(p => <SelectItem key={p} value={p}>{cap(p)}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
                 <div><Label>Priority</Label>
                   <Select value={form.priority} onValueChange={v => setForm({ ...form, priority: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{["low", "medium", "high", "urgent"].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+                    <SelectContent>{["low", "medium", "high", "urgent"].map(p => <SelectItem key={p} value={p}>{cap(p)}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
-                <div><Label>Linked test case</Label>
+                <div><Label>Linked Test Case</Label>
                   <Select value={form.linked_test_case} onValueChange={autofillFromTC}>
-                    <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
-                    <SelectContent>{tcs.filter(t => t.project_id === form.project_id).map(t => <SelectItem key={t.id} value={t.id}>{t.title}</SelectItem>)}</SelectContent>
+                    <SelectTrigger><SelectValue placeholder="Select test case" /></SelectTrigger>
+                    <SelectContent>
+                      {tcs.filter(t => t.project_id === form.project_id).length === 0
+                        ? <div className="px-2 py-1.5 text-xs text-muted-foreground">No test cases for this project</div>
+                        : tcs.filter(t => t.project_id === form.project_id).map(t => <SelectItem key={t.id} value={t.id}>{t.title}</SelectItem>)}
+                    </SelectContent>
                   </Select>
                 </div>
               </div>
@@ -259,8 +286,23 @@ export default function Bugs() {
                 <div><Label>App version</Label><Input placeholder="1.4.2" value={form.app_version} onChange={e => setForm({ ...form, app_version: e.target.value })} /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><Label>Assignee email</Label><Input type="email" value={form.assignee_email} onChange={e => setForm({ ...form, assignee_email: e.target.value })} /></div>
-                <div><Label>Reporter email</Label><Input type="email" placeholder={user?.email ?? ""} value={form.reporter_email} onChange={e => setForm({ ...form, reporter_email: e.target.value })} /></div>
+                <div><Label>Assign To (User Name)</Label>
+                  <Select value={form.assignee_email || "__none__"} onValueChange={v => setForm({ ...form, assignee_email: v === "__none__" ? "" : v })}>
+                    <SelectTrigger><SelectValue placeholder="Select team member" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">Unassigned</SelectItem>
+                      {members.map(m => <SelectItem key={m.user_id} value={m.email ?? m.user_id}>{m.full_name || m.email}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div><Label>Reported By (User Name)</Label>
+                  <Select value={form.reporter_email || user?.email || ""} onValueChange={v => setForm({ ...form, reporter_email: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {members.map(m => <SelectItem key={m.user_id} value={m.email ?? m.user_id}>{m.full_name || m.email}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <div>
                 <Label className="flex items-center gap-2"><Paperclip className="h-3 w-3" />Attachments (images / files)</Label>
@@ -274,26 +316,47 @@ export default function Bugs() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {COLS.map(col => (
-          <div key={col} className="space-y-2">
+          <div
+            key={col}
+            className={`space-y-2 rounded-lg p-2 transition-colors ${dragOver === col ? "bg-primary/10 ring-2 ring-primary/40" : ""}`}
+            onDragOver={e => { e.preventDefault(); setDragOver(col); }}
+            onDragLeave={() => setDragOver(d => (d === col ? null : d))}
+            onDrop={async e => {
+              e.preventDefault();
+              setDragOver(null);
+              if (dragId) { await move(dragId, col); setDragId(null); }
+            }}
+          >
             <div className="flex items-center justify-between px-1">
               <h3 className="font-semibold capitalize text-sm">{col.replace("_", " ")}</h3>
               <Badge variant="secondary" className="text-[10px]">{bugs.filter(b => b.status === col).length}</Badge>
             </div>
             <div className="space-y-2 min-h-[200px]">
               {bugs.filter(b => b.status === col).map(b => (
-                <Card key={b.id} className="p-3 hover:shadow-elegant transition-all cursor-pointer" onClick={() => openDetail(b)}>
+                <Card
+                  key={b.id}
+                  draggable
+                  onDragStart={() => setDragId(b.id)}
+                  onDragEnd={() => setDragId(null)}
+                  className={`p-3 hover:shadow-elegant transition-all cursor-grab active:cursor-grabbing ${dragId === b.id ? "opacity-50" : ""}`}
+                  onClick={() => openDetail(b)}
+                >
                   <div className="flex items-start gap-2 mb-2">
                     <BugIcon className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
                     <div className="font-medium text-sm leading-tight flex-1">{b.title}</div>
                   </div>
                   <div className="flex flex-wrap gap-1 mb-2">
-                    <Badge variant="outline" className={`text-[10px] ${sevColor[b.severity]}`}>{b.severity}</Badge>
+                    <Badge variant="outline" className={`text-[10px] ${sevColor[b.severity]}`}>{cap(b.severity)}</Badge>
+                    <Badge variant="outline" className="text-[10px]">{cap(b.priority)}</Badge>
                     {b.module_id && moduleMap[b.module_id] && <Badge variant="outline" className="text-[10px]">{moduleMap[b.module_id]}</Badge>}
                     {b.attachments?.length > 0 && <Badge variant="outline" className="text-[10px] gap-1"><Paperclip className="h-2.5 w-2.5" />{b.attachments.length}</Badge>}
                   </div>
+                  {b.assignee_email && (
+                    <div className="text-[11px] text-muted-foreground mb-1">Assigned: <span className="text-foreground font-medium">{memberLabel(b.assignee_email)}</span></div>
+                  )}
                   <div className="flex gap-1 flex-wrap" onClick={e => e.stopPropagation()}>
                     {COLS.filter(c => c !== col).map(c => (
-                      <Button key={c} size="sm" variant="ghost" className="h-6 px-2 text-[10px]" onClick={() => move(b.id, c)}>{c.replace("_", " ")}</Button>
+                      <Button key={c} size="sm" variant="ghost" className="h-6 px-2 text-[10px]" onClick={() => move(b.id, c)}>{cap(c)}</Button>
                     ))}
                   </div>
                 </Card>
@@ -312,26 +375,53 @@ export default function Bugs() {
               </SheetHeader>
               <div className="space-y-4 mt-4">
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="outline" className={sevColor[active.severity]}>severity: {active.severity}</Badge>
-                  <Badge variant="outline">priority: {active.priority}</Badge>
+                  <Badge variant="outline" className={sevColor[active.severity]}>Severity: {cap(active.severity)}</Badge>
+                  <Badge variant="outline">Priority: {cap(active.priority)}</Badge>
                   <Badge variant="outline">{projectMap[active.project_id]}</Badge>
                   {active.module_id && <Badge variant="outline">{moduleMap[active.module_id]}</Badge>}
                   {active.linked_test_case && <Badge variant="outline">TC: {tcMap[active.linked_test_case]}</Badge>}
                 </div>
 
                 <div className="grid grid-cols-3 gap-2">
-                  <Select value={active.status} onValueChange={v => updateBug(active.id, { status: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{COLS.map(c => <SelectItem key={c} value={c}>{c.replace("_", " ")}</SelectItem>)}</SelectContent>
-                  </Select>
-                  <Select value={active.severity} onValueChange={v => updateBug(active.id, { severity: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{["low", "medium", "high", "critical"].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
-                  </Select>
-                  <Select value={active.priority} onValueChange={v => updateBug(active.id, { priority: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{["low", "medium", "high", "urgent"].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
-                  </Select>
+                  <div><Label className="text-xs">Status</Label>
+                    <Select value={active.status} onValueChange={v => updateBug(active.id, { status: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>{COLS.map(c => <SelectItem key={c} value={c}>{cap(c)}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div><Label className="text-xs">Severity</Label>
+                    <Select value={active.severity} onValueChange={v => updateBug(active.id, { severity: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>{["low", "medium", "high", "critical"].map(p => <SelectItem key={p} value={p}>{cap(p)}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div><Label className="text-xs">Priority</Label>
+                    <Select value={active.priority} onValueChange={v => updateBug(active.id, { priority: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>{["low", "medium", "high", "urgent"].map(p => <SelectItem key={p} value={p}>{cap(p)}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div><Label className="text-xs">Assign To (User Name)</Label>
+                    <Select value={active.assignee_email || "__none__"} onValueChange={v => updateBug(active.id, { assignee_email: v === "__none__" ? null : v })}>
+                      <SelectTrigger><SelectValue placeholder="Unassigned" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">Unassigned</SelectItem>
+                        {members.map(m => <SelectItem key={m.user_id} value={m.email ?? m.user_id}>{m.full_name || m.email}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div><Label className="text-xs">Linked Test Case</Label>
+                    <Select value={active.linked_test_case || "__none__"} onValueChange={v => updateBug(active.id, { linked_test_case: v === "__none__" ? null : v })}>
+                      <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">None</SelectItem>
+                        {tcs.filter(t => t.project_id === active.project_id).map(t => <SelectItem key={t.id} value={t.id}>{t.title}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 {active.description && <Section label="Description"><p className="text-sm whitespace-pre-wrap">{active.description}</p></Section>}
@@ -347,8 +437,8 @@ export default function Bugs() {
                     <KV k="Browser" v={active.browser} />
                     <KV k="Device" v={active.device} />
                     <KV k="Version" v={active.app_version} />
-                    <KV k="Assignee" v={active.assignee_email} />
-                    <KV k="Reporter" v={active.reporter_email} />
+                    <KV k="Assigned User" v={memberLabel(active.assignee_email)} />
+                    <KV k="Reported By" v={memberLabel(active.reporter_email)} />
                   </div>
                 </Section>
 

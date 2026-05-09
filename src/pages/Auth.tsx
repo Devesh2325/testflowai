@@ -26,8 +26,20 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
 
+  const claimInvite = async () => {
+    if (!inviteToken) return;
+    const { data, error } = await supabase.rpc("accept_invitation", { _token: inviteToken });
+    if (error) { toast.error(error.message); return; }
+    toast.success("Joined workspace!");
+  };
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => { if (data.session) nav("/app"); });
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (data.session) {
+        if (inviteToken) await claimInvite();
+        nav("/app");
+      }
+    });
   }, [nav]);
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -51,6 +63,7 @@ export default function Auth() {
     if (!parsed.success) return toast.error(parsed.error.errors[0].message);
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (!error && inviteToken) await claimInvite();
     setLoading(false);
     if (error) return toast.error(error.message);
     nav("/app");
