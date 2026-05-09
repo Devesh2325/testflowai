@@ -437,8 +437,8 @@ export default function Bugs() {
                     <KV k="Browser" v={active.browser} />
                     <KV k="Device" v={active.device} />
                     <KV k="Version" v={active.app_version} />
-                    <KV k="Assignee" v={active.assignee_email} />
-                    <KV k="Reporter" v={active.reporter_email} />
+                    <KV k="Assigned User" v={memberLabel(active.assignee_email)} />
+                    <KV k="Reported By" v={memberLabel(active.reporter_email)} />
                   </div>
                 </Section>
 
