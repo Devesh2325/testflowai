@@ -286,8 +286,23 @@ export default function Bugs() {
                 <div><Label>App version</Label><Input placeholder="1.4.2" value={form.app_version} onChange={e => setForm({ ...form, app_version: e.target.value })} /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><Label>Assignee email</Label><Input type="email" value={form.assignee_email} onChange={e => setForm({ ...form, assignee_email: e.target.value })} /></div>
-                <div><Label>Reporter email</Label><Input type="email" placeholder={user?.email ?? ""} value={form.reporter_email} onChange={e => setForm({ ...form, reporter_email: e.target.value })} /></div>
+                <div><Label>Assign To (User Name)</Label>
+                  <Select value={form.assignee_email || "__none__"} onValueChange={v => setForm({ ...form, assignee_email: v === "__none__" ? "" : v })}>
+                    <SelectTrigger><SelectValue placeholder="Select team member" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">Unassigned</SelectItem>
+                      {members.map(m => <SelectItem key={m.user_id} value={m.email ?? m.user_id}>{m.full_name || m.email}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div><Label>Reported By (User Name)</Label>
+                  <Select value={form.reporter_email || user?.email || ""} onValueChange={v => setForm({ ...form, reporter_email: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {members.map(m => <SelectItem key={m.user_id} value={m.email ?? m.user_id}>{m.full_name || m.email}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <div>
                 <Label className="flex items-center gap-2"><Paperclip className="h-3 w-3" />Attachments (images / files)</Label>
