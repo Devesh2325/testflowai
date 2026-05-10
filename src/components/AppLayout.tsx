@@ -7,7 +7,13 @@ import NotificationsBell from "@/components/NotificationsBell";
 import WorkspaceSwitcher from "@/components/WorkspaceSwitcher";
 import { Button } from "@/components/ui/button";
 import { NavLink } from "react-router-dom";
-import { WorkspaceProvider } from "@/hooks/useWorkspace";
+import { WorkspaceProvider, useWorkspace } from "@/hooks/useWorkspace";
+
+function WorkspaceScopedOutlet() {
+  const { current } = useWorkspace();
+  // Remount all child pages when active workspace changes — clears local state & refetches data
+  return <main key={current?.id ?? "no-ws"} className="flex-1 p-6 min-w-0"><Outlet /></main>;
+}
 
 export default function AppLayout() {
   return (
@@ -30,7 +36,7 @@ export default function AppLayout() {
               <NotificationsBell />
             </div>
           </header>
-          <main className="flex-1 p-6 min-w-0"><Outlet /></main>
+          <WorkspaceScopedOutlet />
         </div>
       </div>
     </SidebarProvider>

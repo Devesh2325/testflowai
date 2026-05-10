@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useWorkspace } from "@/hooks/useWorkspace";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -79,6 +80,7 @@ type LogRow = { id: string; provider: string; title: string | null; status: stri
 
 export default function Integrations() {
   const { user } = useAuth();
+  const { current: ws } = useWorkspace();
   const [rows, setRows] = useState<Record<string, { enabled: boolean; config: any }>>({});
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<ProviderDef | null>(null);
@@ -105,12 +107,12 @@ export default function Integrations() {
   }, [user]);
 
   const upsert = async (provider: string, patch: { enabled?: boolean; config?: any }) => {
-    if (!user) return;
+    if (!user || !ws) return;
     const current = rows[provider] ?? { enabled: false, config: {} };
     const next = { enabled: patch.enabled ?? current.enabled, config: patch.config ?? current.config };
     setRows(s => ({ ...s, [provider]: next }));
     const { error } = await supabase.from("integrations")
-      .upsert({ user_id: user.id, provider, enabled: next.enabled, config: next.config }, { onConflict: "user_id,provider" });
+      .upsert({ user_id: user.id, provider, enabled: next.enabled, config: next.config, workspace_id: ws.id }, { onConflict: "user_id,provider" });
     if (error) { toast.error("Failed to update"); return false; }
     return true;
   };

@@ -52,7 +52,7 @@ export type Database = {
           created_at: string
           id: string
           owner_id: string
-          workspace_id: string | null
+          workspace_id: string
         }
         Insert: {
           author_email?: string | null
@@ -61,7 +61,7 @@ export type Database = {
           created_at?: string
           id?: string
           owner_id: string
-          workspace_id?: string | null
+          workspace_id: string
         }
         Update: {
           author_email?: string | null
@@ -70,7 +70,7 @@ export type Database = {
           created_at?: string
           id?: string
           owner_id?: string
-          workspace_id?: string | null
+          workspace_id?: string
         }
         Relationships: []
       }
@@ -189,7 +189,7 @@ export type Database = {
           permission: string
           shared_with_email: string
           shared_with_user_id: string | null
-          workspace_id: string | null
+          workspace_id: string
         }
         Insert: {
           created_at?: string
@@ -199,7 +199,7 @@ export type Database = {
           permission?: string
           shared_with_email: string
           shared_with_user_id?: string | null
-          workspace_id?: string | null
+          workspace_id: string
         }
         Update: {
           created_at?: string
@@ -209,7 +209,7 @@ export type Database = {
           permission?: string
           shared_with_email?: string
           shared_with_user_id?: string | null
-          workspace_id?: string | null
+          workspace_id?: string
         }
         Relationships: [
           {
@@ -307,7 +307,7 @@ export type Database = {
           provider: string
           updated_at: string
           user_id: string
-          workspace_id: string | null
+          workspace_id: string
         }
         Insert: {
           config?: Json
@@ -317,7 +317,7 @@ export type Database = {
           provider: string
           updated_at?: string
           user_id: string
-          workspace_id?: string | null
+          workspace_id: string
         }
         Update: {
           config?: Json
@@ -327,7 +327,7 @@ export type Database = {
           provider?: string
           updated_at?: string
           user_id?: string
-          workspace_id?: string | null
+          workspace_id?: string
         }
         Relationships: []
       }
@@ -580,7 +580,7 @@ export type Database = {
           id: string
           label: string
           owner_id: string
-          workspace_id: string | null
+          workspace_id: string
         }
         Insert: {
           color?: string
@@ -588,7 +588,7 @@ export type Database = {
           id?: string
           label: string
           owner_id: string
-          workspace_id?: string | null
+          workspace_id: string
         }
         Update: {
           color?: string
@@ -596,7 +596,7 @@ export type Database = {
           id?: string
           label?: string
           owner_id?: string
-          workspace_id?: string | null
+          workspace_id?: string
         }
         Relationships: []
       }
@@ -685,7 +685,7 @@ export type Database = {
           screenshot_url: string | null
           status: Database["public"]["Enums"]["execution_status"]
           test_case_id: string
-          workspace_id: string | null
+          workspace_id: string
         }
         Insert: {
           browser?: string | null
@@ -699,7 +699,7 @@ export type Database = {
           screenshot_url?: string | null
           status?: Database["public"]["Enums"]["execution_status"]
           test_case_id: string
-          workspace_id?: string | null
+          workspace_id: string
         }
         Update: {
           browser?: string | null
@@ -713,7 +713,7 @@ export type Database = {
           screenshot_url?: string | null
           status?: Database["public"]["Enums"]["execution_status"]
           test_case_id?: string
-          workspace_id?: string | null
+          workspace_id?: string
         }
         Relationships: [
           {

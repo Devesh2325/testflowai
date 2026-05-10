@@ -80,6 +80,7 @@ export default function Docs() {
     const { error } = await supabase.from("document_shares").insert({
       document_id: activeDoc.id, shared_with_email: shareEmail.trim().toLowerCase(),
       permission: sharePerm, owner_id: user.id,
+      workspace_id: (activeDoc as any).workspace_id,
     });
     if (error) return toast.error(error.message);
     toast.success(`Shared with ${shareEmail}`); setShareEmail(""); load();
