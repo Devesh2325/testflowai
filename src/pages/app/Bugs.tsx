@@ -43,6 +43,7 @@ const cap = (s: string) => s.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperC
 
 export default function Bugs() {
   const { user } = useAuth();
+  const { current: ws } = useWorkspace();
   const [bugs, setBugs] = useState<Bug[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [modules, setModules] = useState<Module[]>([]);
@@ -198,9 +199,10 @@ export default function Bugs() {
 
   const addComment = async () => {
     if (!active || !newComment.trim() || !user) return;
+    if (!ws) return;
     const { error } = await supabase.from("bug_comments").insert({
       bug_id: active.id, owner_id: user.id, author_email: user.email, body: newComment.trim(),
-      workspace_id: active.workspace_id as string,
+      workspace_id: ws.id,
     });
     if (error) return toast.error(error.message);
     setNewComment(""); loadComments(active.id);

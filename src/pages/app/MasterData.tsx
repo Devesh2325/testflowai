@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useWorkspace } from "@/hooks/useWorkspace";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ type Tag = { id: string; label: string; color: string };
 
 export default function MasterData() {
   const { user } = useAuth();
+  const { current: ws } = useWorkspace();
   const [projects, setProjects] = useState<Project[]>([]);
   const [modules, setModules] = useState<Module[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
@@ -50,8 +52,8 @@ export default function MasterData() {
   };
 
   const addTag = async () => {
-    if (!user || !newTag.label) return;
-    const { error } = await supabase.from("tags").insert({ ...newTag, owner_id: user.id });
+    if (!user || !ws || !newTag.label) return;
+    const { error } = await supabase.from("tags").insert({ ...newTag, owner_id: user.id, workspace_id: ws.id });
     if (error) return toast.error(error.message);
     setNewTag({ label: "", color: "primary" });
     load();

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useWorkspace } from "@/hooks/useWorkspace";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +34,7 @@ const statusColor: Record<string, string> = {
 
 export default function TestRuns() {
   const { user } = useAuth();
+  const { current: ws } = useWorkspace();
   const [runs, setRuns] = useState<Run[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [modules, setModules] = useState<Module[]>([]);
@@ -72,12 +74,12 @@ export default function TestRuns() {
   const flash = (id: string) => { setSavedFlash(id); setTimeout(() => setSavedFlash(s => s === id ? null : s), 1000); };
 
   const create = async () => {
-    if (!name || !projectId || !user) return;
-    const { data: run, error } = await supabase.from("test_runs").insert({ name, project_id: projectId, owner_id: user.id }).select().single();
+    if (!name || !projectId || !user || !ws) return;
+    const { data: run, error } = await supabase.from("test_runs").insert({ name, project_id: projectId, owner_id: user.id, workspace_id: ws.id }).select().single();
     if (error) return toast.error(error.message);
     const { data: cs } = await supabase.from("test_cases").select("id").eq("project_id", projectId);
     if (cs?.length) {
-      await supabase.from("test_executions").insert(cs.map(c => ({ run_id: run.id, test_case_id: c.id, owner_id: user.id })));
+      await supabase.from("test_executions").insert(cs.map(c => ({ run_id: run.id, test_case_id: c.id, owner_id: user.id, workspace_id: ws.id })));
     }
     toast.success("Run created with " + (cs?.length || 0) + " cases");
     setOpen(false); setName(""); load();
