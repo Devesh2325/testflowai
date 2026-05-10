@@ -199,6 +199,7 @@ export default function Bugs() {
     if (!active || !newComment.trim() || !user) return;
     const { error } = await supabase.from("bug_comments").insert({
       bug_id: active.id, owner_id: user.id, author_email: user.email, body: newComment.trim(),
+      workspace_id: active.workspace_id as string,
     });
     if (error) return toast.error(error.message);
     setNewComment(""); loadComments(active.id);
