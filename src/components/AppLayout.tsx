@@ -1,8 +1,8 @@
 import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { Input } from "@/components/ui/input";
-import { Search, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import GlobalSearch from "@/components/GlobalSearch";
 import NotificationsBell from "@/components/NotificationsBell";
 import WorkspaceSwitcher from "@/components/WorkspaceSwitcher";
 import { Button } from "@/components/ui/button";
