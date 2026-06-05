@@ -1,21 +1,23 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
-// Module-level guard so we only initialize AHDjs once per page load,
-// even if the component remounts (e.g. React StrictMode / route changes).
+// Module-level guard so we only initialize AHDjs once per page load.
 let ahdInited = false;
+let ahdReady = false;
+let ahdRef: any = null;
 
 /**
  * Initializes AHDjs once per session, using the authenticated user's id
- * as the visitorId so highlights are tied to the current user.
- *
- * NOTE: ahdjs is imported dynamically inside the effect to avoid pulling
- * its bundled React copy into the initial module graph, which was causing
- * "Cannot read properties of null (reading 'useRef')" (duplicate React).
+ * as the visitorId. Re-runs showHighlights on every route change so
+ * highlights are scoped to the current pathname.
  */
 export default function AHDInit() {
   const { user } = useAuth();
+  const location = useLocation();
+  const lastPathRef = useRef<string | null>(null);
 
+  // One-time init when the user is known.
   useEffect(() => {
     if (ahdInited || !user?.id) return;
     ahdInited = true;
@@ -33,13 +35,29 @@ export default function AHDInit() {
           showProgressbar: false,
         });
         AHDjs.initializeSiteMap();
-        AHDjs.showHighlights("target-page", true);
+        ahdRef = AHDjs;
+        ahdReady = true;
+        // Show highlights for the current path immediately after init.
+        AHDjs.showHighlights(window.location.pathname, false);
+        lastPathRef.current = window.location.pathname;
       } catch (e) {
         ahdInited = false;
         console.error("AHDjs init failed", e);
       }
     })();
   }, [user?.id]);
+
+  // Re-trigger highlights on route changes.
+  useEffect(() => {
+    if (!ahdReady || !ahdRef) return;
+    if (lastPathRef.current === location.pathname) return;
+    lastPathRef.current = location.pathname;
+    try {
+      ahdRef.showHighlights(window.location.pathname, false);
+    } catch (e) {
+      console.error("AHDjs showHighlights failed", e);
+    }
+  }, [location.pathname]);
 
   return null;
 }
