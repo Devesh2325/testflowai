@@ -28,17 +28,18 @@ export default function AHDInit() {
         await import("ahdjs/build/css/index.css" as any);
         const AHDjs: any = mod.default ?? mod;
 
-        AHDjs.config({
+        // AHDjs is a factory: AHDjs(tour, options) returns an instance.
+        const instance: any = AHDjs([], {
           applicationId: "6a19b18e9e47067dfe4f554f",
           apiHost: "https://pagepilot.fabbuilder.com",
           visitorId: user.id,
           showProgressbar: false,
         });
-        AHDjs.initializeSiteMap();
-        ahdRef = AHDjs;
+        await instance.initializeSiteMap(true);
+        ahdRef = instance;
         ahdReady = true;
         // Show highlights for the current path immediately after init.
-        AHDjs.showHighlights(window.location.pathname, false);
+        await instance.showHighlights(window.location.pathname, false);
         lastPathRef.current = window.location.pathname;
       } catch (e) {
         ahdInited = false;
