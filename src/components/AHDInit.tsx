@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 // @ts-ignore - ahdjs has no bundled types
-import AHDjs from "ahdjs";
+import AHDjsImport from "ahdjs";
+const AHDjs: any = AHDjsImport;
 import "ahdjs/build/css/index.css";
 
 /**
