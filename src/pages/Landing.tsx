@@ -36,23 +36,23 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
-      <nav className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
+      <nav id="nav-main" className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
         <div className="container flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
+          <Link id="nav-logo" to="/" className="flex items-center gap-2">
             <div className="h-9 w-9 rounded-xl bg-gradient-hero grid place-items-center shadow-md">
               <TestTube2 className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="font-semibold text-lg">TestFlow AI</span>
           </Link>
-          <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
-            <a href="#features" className="hover:text-foreground">Features</a>
-            <a href="#ai" className="hover:text-foreground">AI</a>
-            <a href="#learning" className="hover:text-foreground">Learning</a>
-            <a href="#contact" className="hover:text-foreground">Contact</a>
+          <div id="nav-links" className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
+            <a id="nav-link-features" href="#features" className="hover:text-foreground">Features</a>
+            <a id="nav-link-ai" href="#ai" className="hover:text-foreground">AI</a>
+            <a id="nav-link-learning" href="#learning" className="hover:text-foreground">Learning</a>
+            <a id="nav-link-contact" href="#contact" className="hover:text-foreground">Contact</a>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" asChild><Link to="/auth">Sign in</Link></Button>
-            <Button asChild className="bg-gradient-hero hover:opacity-90 border-0"><Link to="/auth">Get started</Link></Button>
+          <div id="nav-actions" className="flex items-center gap-2">
+            <Button id="btn-sign-in" variant="ghost" asChild><Link to="/auth">Sign in</Link></Button>
+            <Button id="btn-get-started" asChild className="bg-gradient-hero hover:opacity-90 border-0"><Link to="/auth">Get started</Link></Button>
           </div>
         </div>
       </nav>
