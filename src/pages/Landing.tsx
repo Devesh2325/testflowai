@@ -36,23 +36,23 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
-      <nav className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
+      <nav id="nav-main" className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
         <div className="container flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
+          <Link id="nav-logo" to="/" className="flex items-center gap-2">
             <div className="h-9 w-9 rounded-xl bg-gradient-hero grid place-items-center shadow-md">
               <TestTube2 className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="font-semibold text-lg">TestFlow AI</span>
           </Link>
-          <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
-            <a href="#features" className="hover:text-foreground">Features</a>
-            <a href="#ai" className="hover:text-foreground">AI</a>
-            <a href="#learning" className="hover:text-foreground">Learning</a>
-            <a href="#contact" className="hover:text-foreground">Contact</a>
+          <div id="nav-links" className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
+            <a id="nav-link-features" href="#features" className="hover:text-foreground">Features</a>
+            <a id="nav-link-ai" href="#ai" className="hover:text-foreground">AI</a>
+            <a id="nav-link-learning" href="#learning" className="hover:text-foreground">Learning</a>
+            <a id="nav-link-contact" href="#contact" className="hover:text-foreground">Contact</a>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" asChild><Link to="/auth">Sign in</Link></Button>
-            <Button asChild className="bg-gradient-hero hover:opacity-90 border-0"><Link to="/auth">Get started</Link></Button>
+          <div id="nav-actions" className="flex items-center gap-2">
+            <Button id="btn-sign-in" variant="ghost" asChild><Link to="/auth">Sign in</Link></Button>
+            <Button id="btn-get-started" asChild className="bg-gradient-hero hover:opacity-90 border-0"><Link to="/auth">Get started</Link></Button>
           </div>
         </div>
       </nav>
@@ -73,10 +73,10 @@ export default function Landing() {
             The intuitive test management platform that combines manual testing, automation, and AI — so your team ships with confidence.
           </p>
           <div className="mt-10 flex items-center justify-center gap-3">
-            <Button size="lg" asChild className="bg-gradient-hero hover:opacity-90 border-0 shadow-glow gap-2 h-12 px-6">
+            <Button id="btn-hero-start-free" size="lg" asChild className="bg-gradient-hero hover:opacity-90 border-0 shadow-glow gap-2 h-12 px-6">
               <Link to="/auth">Start free <ArrowRight className="h-4 w-4" /></Link>
             </Button>
-            <Button size="lg" variant="outline" className="h-12 px-6">View live demo</Button>
+            <Button id="btn-hero-view-demo" size="lg" variant="outline" className="h-12 px-6">View live demo</Button>
           </div>
           <div className="mt-12 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
             {["50% less testing time", "AI bug detection", "Manual + Automation"].map(t => (
@@ -142,7 +142,7 @@ export default function Landing() {
             </div>
             <h2 className="text-4xl md:text-5xl font-bold leading-tight">From requirement to test plan in under 60 seconds.</h2>
             <p className="mt-4 text-lg opacity-90">Paste your requirement. Get prioritized test cases, edge cases, and risk-based suggestions — instantly.</p>
-            <Button size="lg" variant="secondary" asChild className="mt-8"><Link to="/auth">Try the AI Assistant</Link></Button>
+            <Button id="btn-try-ai-assistant" size="lg" variant="secondary" asChild className="mt-8"><Link to="/auth">Try the AI Assistant</Link></Button>
           </div>
         </Card>
       </section>
@@ -151,7 +151,7 @@ export default function Landing() {
       <section id="learning" className="container py-24 text-center">
         <h2 className="text-4xl font-bold mb-4">Ready to <span className="text-gradient">level up your QA?</span></h2>
         <p className="text-muted-foreground mb-8">Join teams shipping faster with TestFlow AI.</p>
-        <Button size="lg" asChild className="bg-gradient-hero border-0 shadow-glow"><Link to="/auth">Get started — it's free</Link></Button>
+        <Button id="btn-cta-get-started" size="lg" asChild className="bg-gradient-hero border-0 shadow-glow"><Link to="/auth">Get started — it's free</Link></Button>
       </section>
 
       {/* Contact / Enquiry */}
@@ -162,12 +162,12 @@ export default function Landing() {
         </div>
         <Card className="max-w-2xl mx-auto p-6 md:p-8 shadow-elegant">
           <div className="grid md:grid-cols-2 gap-3">
-            <div><Label>Name</Label><Input value={c.name} onChange={e => setC({ ...c, name: e.target.value })} /></div>
-            <div><Label>Email</Label><Input type="email" value={c.email} onChange={e => setC({ ...c, email: e.target.value })} /></div>
-            <div className="md:col-span-2"><Label>Subject</Label><Input value={c.subject} onChange={e => setC({ ...c, subject: e.target.value })} /></div>
-            <div className="md:col-span-2"><Label>Message</Label><Textarea rows={4} value={c.message} onChange={e => setC({ ...c, message: e.target.value })} /></div>
+            <div><Label htmlFor="contact-name">Name</Label><Input id="contact-name" value={c.name} onChange={e => setC({ ...c, name: e.target.value })} /></div>
+            <div><Label htmlFor="contact-email">Email</Label><Input id="contact-email" type="email" value={c.email} onChange={e => setC({ ...c, email: e.target.value })} /></div>
+            <div className="md:col-span-2"><Label htmlFor="contact-subject">Subject</Label><Input id="contact-subject" value={c.subject} onChange={e => setC({ ...c, subject: e.target.value })} /></div>
+            <div className="md:col-span-2"><Label htmlFor="contact-message">Message</Label><Textarea id="contact-message" rows={4} value={c.message} onChange={e => setC({ ...c, message: e.target.value })} /></div>
           </div>
-          <Button onClick={sendEnquiry} disabled={sending} className="mt-4 bg-gradient-hero border-0 gap-2"><Send className="h-4 w-4" />{sending ? "Sending…" : "Send enquiry"}</Button>
+          <Button id="btn-send-enquiry" onClick={sendEnquiry} disabled={sending} className="mt-4 bg-gradient-hero border-0 gap-2"><Send className="h-4 w-4" />{sending ? "Sending…" : "Send enquiry"}</Button>
         </Card>
       </section>
 
