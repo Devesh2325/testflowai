@@ -151,7 +151,7 @@ export default function Landing() {
       <section id="learning" className="container py-24 text-center">
         <h2 className="text-4xl font-bold mb-4">Ready to <span className="text-gradient">level up your QA?</span></h2>
         <p className="text-muted-foreground mb-8">Join teams shipping faster with TestFlow AI.</p>
-        <Button size="lg" asChild className="bg-gradient-hero border-0 shadow-glow"><Link to="/auth">Get started — it's free</Link></Button>
+        <Button id="btn-cta-get-started" size="lg" asChild className="bg-gradient-hero border-0 shadow-glow"><Link to="/auth">Get started — it's free</Link></Button>
       </section>
 
       {/* Contact / Enquiry */}
