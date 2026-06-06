@@ -105,6 +105,33 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Interactive Demo */}
+      <section id="demo" className="container py-20">
+        <div className="text-center mb-10">
+          <h2 className="text-4xl font-bold">See it <span className="text-gradient">in action</span></h2>
+          <p className="text-muted-foreground mt-3">Take an interactive tour of TestFlow AI.</p>
+        </div>
+        <div className="max-w-5xl mx-auto" style={{ position: "relative", paddingBottom: "calc(54.75% + 25px)", width: "100%", height: 0 }}>
+          <iframe
+            loading="lazy"
+            src="https://pagepilot-demo-viewer-prod.web.app//?tid=6a23e38710adcf3cf33aa974&did=6a23eaa910adcf3cf33ab6cf&type=demo&status=live"
+            allow="fullscreen"
+            title="TestFlow AI interactive demo"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              border: "1px solid rgba(63,95,172,0.35)",
+              boxShadow: "0px 0px 18px rgba(26, 19, 72, 0.15)",
+              borderRadius: "10px",
+              boxSizing: "border-box",
+            }}
+          />
+        </div>
+      </section>
+
       {/* AI block */}
       <section id="ai" className="container py-20">
         <Card className="relative overflow-hidden p-12 md:p-16 border-0 bg-gradient-hero text-primary-foreground">
