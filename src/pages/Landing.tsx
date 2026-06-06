@@ -142,7 +142,7 @@ export default function Landing() {
             </div>
             <h2 className="text-4xl md:text-5xl font-bold leading-tight">From requirement to test plan in under 60 seconds.</h2>
             <p className="mt-4 text-lg opacity-90">Paste your requirement. Get prioritized test cases, edge cases, and risk-based suggestions — instantly.</p>
-            <Button size="lg" variant="secondary" asChild className="mt-8"><Link to="/auth">Try the AI Assistant</Link></Button>
+            <Button id="btn-try-ai-assistant" size="lg" variant="secondary" asChild className="mt-8"><Link to="/auth">Try the AI Assistant</Link></Button>
           </div>
         </Card>
       </section>
