@@ -30,17 +30,18 @@ export default function AHDInit() {
 
         // AHDjs is a factory: AHDjs(tour, options) returns an instance.
         const instance: any = AHDjs([], {
-          applicationId: "6a19b18e9e47067dfe4f554f",
+          applicationId: "6a23e38710adcf3cf33aa974",
           apiHost: "https://pagepilot.fabbuilder.com",
           visitorId: user.id,
           showProgressbar: false,
         });
-        await instance.initializeSiteMap(true);
+        // Build the sitemap before showing highlights.
+        await instance.initializeSiteMap();
         ahdRef = instance;
         ahdReady = true;
-        // Show highlights for the current path immediately after init.
-        await instance.showHighlights(window.location.pathname, false);
-        lastPathRef.current = window.location.pathname;
+        // Show highlights for the root target page.
+        await instance.showHighlights("/", true);
+        lastPathRef.current = "/";
       } catch (e) {
         ahdInited = false;
         console.error("AHDjs init failed", e);
