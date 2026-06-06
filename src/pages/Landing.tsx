@@ -162,12 +162,12 @@ export default function Landing() {
         </div>
         <Card className="max-w-2xl mx-auto p-6 md:p-8 shadow-elegant">
           <div className="grid md:grid-cols-2 gap-3">
-            <div><Label>Name</Label><Input value={c.name} onChange={e => setC({ ...c, name: e.target.value })} /></div>
-            <div><Label>Email</Label><Input type="email" value={c.email} onChange={e => setC({ ...c, email: e.target.value })} /></div>
-            <div className="md:col-span-2"><Label>Subject</Label><Input value={c.subject} onChange={e => setC({ ...c, subject: e.target.value })} /></div>
-            <div className="md:col-span-2"><Label>Message</Label><Textarea rows={4} value={c.message} onChange={e => setC({ ...c, message: e.target.value })} /></div>
+            <div><Label htmlFor="contact-name">Name</Label><Input id="contact-name" value={c.name} onChange={e => setC({ ...c, name: e.target.value })} /></div>
+            <div><Label htmlFor="contact-email">Email</Label><Input id="contact-email" type="email" value={c.email} onChange={e => setC({ ...c, email: e.target.value })} /></div>
+            <div className="md:col-span-2"><Label htmlFor="contact-subject">Subject</Label><Input id="contact-subject" value={c.subject} onChange={e => setC({ ...c, subject: e.target.value })} /></div>
+            <div className="md:col-span-2"><Label htmlFor="contact-message">Message</Label><Textarea id="contact-message" rows={4} value={c.message} onChange={e => setC({ ...c, message: e.target.value })} /></div>
           </div>
-          <Button onClick={sendEnquiry} disabled={sending} className="mt-4 bg-gradient-hero border-0 gap-2"><Send className="h-4 w-4" />{sending ? "Sending…" : "Send enquiry"}</Button>
+          <Button id="btn-send-enquiry" onClick={sendEnquiry} disabled={sending} className="mt-4 bg-gradient-hero border-0 gap-2"><Send className="h-4 w-4" />{sending ? "Sending…" : "Send enquiry"}</Button>
         </Card>
       </section>
 
