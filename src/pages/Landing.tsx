@@ -73,10 +73,10 @@ export default function Landing() {
             The intuitive test management platform that combines manual testing, automation, and AI — so your team ships with confidence.
           </p>
           <div className="mt-10 flex items-center justify-center gap-3">
-            <Button size="lg" asChild className="bg-gradient-hero hover:opacity-90 border-0 shadow-glow gap-2 h-12 px-6">
+            <Button id="btn-hero-start-free" size="lg" asChild className="bg-gradient-hero hover:opacity-90 border-0 shadow-glow gap-2 h-12 px-6">
               <Link to="/auth">Start free <ArrowRight className="h-4 w-4" /></Link>
             </Button>
-            <Button size="lg" variant="outline" className="h-12 px-6">View live demo</Button>
+            <Button id="btn-hero-view-demo" size="lg" variant="outline" className="h-12 px-6">View live demo</Button>
           </div>
           <div className="mt-12 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
             {["50% less testing time", "AI bug detection", "Manual + Automation"].map(t => (
