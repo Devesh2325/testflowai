@@ -114,21 +114,27 @@ export default function Bugs() {
     setAiLoading(false);
     if (error) return toast.error(error.message);
     const b = data?.bug ?? {};
-    setForm((f: any) => ({
-      ...f,
-      title: b.title || f.title,
-      description: b.description || f.description,
-      severity: b.severity || f.severity,
-      priority: b.priority || f.priority,
-      steps_to_reproduce: b.steps_to_reproduce || f.steps_to_reproduce,
-      expected_result: b.expected_result || f.expected_result,
-      actual_result: b.actual_result || f.actual_result,
-      environment: b.environment || f.environment,
-      browser: b.browser || f.browser,
-      device: b.device || f.device,
-      app_version: b.app_version || f.app_version,
-    }));
-    toast.success("AI filled the form — review & submit");
+    setForm((f: any) => {
+      const next = {
+        ...f,
+        title: b.title || f.title,
+        description: b.description || f.description,
+        severity: b.severity || f.severity,
+        priority: b.priority || f.priority,
+        steps_to_reproduce: b.steps_to_reproduce || f.steps_to_reproduce,
+        expected_result: b.expected_result || f.expected_result,
+        actual_result: b.actual_result || f.actual_result,
+        environment: b.environment || f.environment,
+        browser: b.browser || f.browser,
+        device: b.device || f.device,
+        app_version: b.app_version || f.app_version,
+      };
+      const found = findDuplicates(next.title, next.description, next.project_id);
+      setDupes(found);
+      if (found.length) toast.warning(`AI triage: ${found.length} possible duplicate(s) found`);
+      else toast.success("AI filled the form — review & submit");
+      return next;
+    });
   };
 
   const load = async () => {
