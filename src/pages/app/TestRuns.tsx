@@ -161,14 +161,20 @@ export default function TestRuns() {
             <h1 className="text-3xl font-bold">{activeRun.name}</h1>
             <p className="text-muted-foreground text-sm">Pass {counts.pass ?? 0} · Fail {counts.fail ?? 0} · Blocked {counts.blocked ?? 0} · Not run {counts.not_run ?? 0} · {passRate}% pass</p>
           </div>
-          <Select value={activeRun.status} onValueChange={v => { setActiveRun({ ...activeRun, status: v }); updateRunStatus(activeRun.id, v); }}>
-            <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="in_progress">In progress</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-              <SelectItem value="aborted">Aborted</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" className="gap-2" onClick={runSummary} disabled={summaryLoading}>
+              {summaryLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-primary" />}
+              AI summary
+            </Button>
+            <Select value={activeRun.status} onValueChange={v => { setActiveRun({ ...activeRun, status: v }); updateRunStatus(activeRun.id, v); }}>
+              <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="in_progress">In progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="aborted">Aborted</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <Card className="p-3 flex flex-wrap items-center gap-2">
