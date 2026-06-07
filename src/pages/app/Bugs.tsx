@@ -265,6 +265,20 @@ export default function Bugs() {
                   {aiLoading ? "Generating…" : "Auto-fill form"}
                 </Button>
               </div>
+              {dupes.length > 0 && (
+                <div className="rounded-lg border border-warning/40 bg-warning/5 p-3 space-y-2">
+                  <div className="text-sm font-medium text-warning">⚠ Possible duplicates ({dupes.length})</div>
+                  <ul className="space-y-1 text-xs">
+                    {dupes.map(d => (
+                      <li key={d.id} className="flex items-center gap-2">
+                        <Badge variant="outline" className={sevColor[d.severity]}>{d.severity}</Badge>
+                        <button type="button" className="text-left hover:underline truncate" onClick={() => { setOpen(false); openDetail(d); }}>{d.title}</button>
+                        <span className="text-muted-foreground ml-auto">{cap(d.status)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <div><Label>Project</Label>
                   <Select value={form.project_id} onValueChange={v => setForm({ ...form, project_id: v, module_id: "", linked_test_case: "" })}>
