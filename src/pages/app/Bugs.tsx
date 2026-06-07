@@ -252,7 +252,7 @@ export default function Bugs() {
           <h1 className="text-3xl font-bold">Bugs</h1>
           <p className="text-muted-foreground">Detailed bug tracking with attachments, environment & comments.</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setDupes([]); }}>
           <DialogTrigger asChild><Button className="bg-gradient-hero border-0 gap-2" disabled={!projects.length}><Plus className="h-4 w-4" />New bug</Button></DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader><DialogTitle>Log a bug</DialogTitle></DialogHeader>
