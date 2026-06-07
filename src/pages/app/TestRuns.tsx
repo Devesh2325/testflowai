@@ -50,6 +50,19 @@ export default function TestRuns() {
   const [savedFlash, setSavedFlash] = useState<string | null>(null);
   const [bugOpen, setBugOpen] = useState<Exec | null>(null);
   const [bugForm, setBugForm] = useState({ title: "", description: "", severity: "medium" });
+  const [summary, setSummary] = useState<string | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryOpen, setSummaryOpen] = useState(false);
+
+  const runSummary = async () => {
+    if (!activeRun) return;
+    setSummaryLoading(true); setSummaryOpen(true); setSummary(null);
+    const { data, error } = await supabase.functions.invoke("summarize-test-run", { body: { run_id: activeRun.id } });
+    setSummaryLoading(false);
+    if (error) return toast.error(error.message);
+    if (data?.error) return toast.error(data.error);
+    setSummary(data?.summary ?? "No summary generated.");
+  };
 
   const load = async () => {
     const [r, p, m, c, b] = await Promise.all([
