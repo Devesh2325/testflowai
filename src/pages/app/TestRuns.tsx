@@ -286,6 +286,24 @@ export default function TestRuns() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* AI summary dialog */}
+        <Dialog open={summaryOpen} onOpenChange={setSummaryOpen}>
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" />AI test run summary</DialogTitle>
+              <DialogDescription>Generated from this run's executions, failures, and linked bugs.</DialogDescription>
+            </DialogHeader>
+            {summaryLoading ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground p-6"><Loader2 className="h-4 w-4 animate-spin" />Analyzing run...</div>
+            ) : (
+              <div className="prose prose-sm max-w-none whitespace-pre-wrap text-sm leading-relaxed">{summary}</div>
+            )}
+            {summary && (
+              <Button variant="outline" size="sm" onClick={() => { navigator.clipboard.writeText(summary); toast.success("Copied"); }}>Copy</Button>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
