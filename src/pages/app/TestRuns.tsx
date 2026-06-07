@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, PlayCircle, CheckCircle2, XCircle, MinusCircle, ChevronRight, Bug, Check, Trash2 } from "lucide-react";
+import { Plus, PlayCircle, CheckCircle2, XCircle, MinusCircle, ChevronRight, Bug, Check, Trash2, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
