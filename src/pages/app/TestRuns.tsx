@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, PlayCircle, CheckCircle2, XCircle, MinusCircle, ChevronRight, Bug, Check, Trash2 } from "lucide-react";
+import { Plus, PlayCircle, CheckCircle2, XCircle, MinusCircle, ChevronRight, Bug, Check, Trash2, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
@@ -50,6 +50,19 @@ export default function TestRuns() {
   const [savedFlash, setSavedFlash] = useState<string | null>(null);
   const [bugOpen, setBugOpen] = useState<Exec | null>(null);
   const [bugForm, setBugForm] = useState({ title: "", description: "", severity: "medium" });
+  const [summary, setSummary] = useState<string | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryOpen, setSummaryOpen] = useState(false);
+
+  const runSummary = async () => {
+    if (!activeRun) return;
+    setSummaryLoading(true); setSummaryOpen(true); setSummary(null);
+    const { data, error } = await supabase.functions.invoke("summarize-test-run", { body: { run_id: activeRun.id } });
+    setSummaryLoading(false);
+    if (error) return toast.error(error.message);
+    if (data?.error) return toast.error(data.error);
+    setSummary(data?.summary ?? "No summary generated.");
+  };
 
   const load = async () => {
     const [r, p, m, c, b] = await Promise.all([
@@ -148,14 +161,20 @@ export default function TestRuns() {
             <h1 className="text-3xl font-bold">{activeRun.name}</h1>
             <p className="text-muted-foreground text-sm">Pass {counts.pass ?? 0} · Fail {counts.fail ?? 0} · Blocked {counts.blocked ?? 0} · Not run {counts.not_run ?? 0} · {passRate}% pass</p>
           </div>
-          <Select value={activeRun.status} onValueChange={v => { setActiveRun({ ...activeRun, status: v }); updateRunStatus(activeRun.id, v); }}>
-            <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="in_progress">In progress</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-              <SelectItem value="aborted">Aborted</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" className="gap-2" onClick={runSummary} disabled={summaryLoading}>
+              {summaryLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-primary" />}
+              AI summary
+            </Button>
+            <Select value={activeRun.status} onValueChange={v => { setActiveRun({ ...activeRun, status: v }); updateRunStatus(activeRun.id, v); }}>
+              <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="in_progress">In progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="aborted">Aborted</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <Card className="p-3 flex flex-wrap items-center gap-2">
@@ -265,6 +284,24 @@ export default function TestRuns() {
               <div><Label>Description</Label><Textarea rows={4} value={bugForm.description} onChange={e => setBugForm({ ...bugForm, description: e.target.value })} /></div>
               <Button onClick={fileBug} className="w-full bg-gradient-hero border-0">Create bug</Button>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* AI summary dialog */}
+        <Dialog open={summaryOpen} onOpenChange={setSummaryOpen}>
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" />AI test run summary</DialogTitle>
+              <DialogDescription>Generated from this run's executions, failures, and linked bugs.</DialogDescription>
+            </DialogHeader>
+            {summaryLoading ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground p-6"><Loader2 className="h-4 w-4 animate-spin" />Analyzing run...</div>
+            ) : (
+              <div className="prose prose-sm max-w-none whitespace-pre-wrap text-sm leading-relaxed">{summary}</div>
+            )}
+            {summary && (
+              <Button variant="outline" size="sm" onClick={() => { navigator.clipboard.writeText(summary); toast.success("Copied"); }}>Copy</Button>
+            )}
           </DialogContent>
         </Dialog>
       </div>

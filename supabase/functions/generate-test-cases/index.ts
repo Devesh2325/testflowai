@@ -9,15 +9,29 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { requirement, count = 5 } = await req.json();
+    const { requirement, count = 5, format = "standard" } = await req.json();
     if (!requirement || typeof requirement !== "string") {
-      return new Response(JSON.stringify({ error: "requirement is required" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return j({ error: "requirement is required" }, 400);
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+
+    const includeGherkin = format === "gherkin" || format === "both";
+
+    const tcProps: any = {
+      title: { type: "string" },
+      preconditions: { type: "string" },
+      steps: { type: "string", description: "Numbered steps separated by newlines" },
+      expected_result: { type: "string" },
+      priority: { type: "string", enum: ["low", "medium", "high", "critical"] },
+      type: { type: "string", enum: ["functional", "regression", "smoke", "integration", "performance", "security", "usability"] },
+    };
+    const required = ["title", "steps", "expected_result", "priority", "type"];
+    if (includeGherkin) {
+      tcProps.gherkin = { type: "string", description: "Full Gherkin scenario: Feature/Scenario/Given/When/Then/And lines" };
+      required.push("gherkin");
+    }
 
     const tools = [{
       type: "function",
@@ -29,19 +43,7 @@ serve(async (req) => {
           properties: {
             test_cases: {
               type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  title: { type: "string" },
-                  preconditions: { type: "string" },
-                  steps: { type: "string", description: "Numbered steps separated by newlines" },
-                  expected_result: { type: "string" },
-                  priority: { type: "string", enum: ["low", "medium", "high", "critical"] },
-                  type: { type: "string", enum: ["functional", "regression", "smoke", "integration", "performance", "security", "usability"] },
-                },
-                required: ["title", "steps", "expected_result", "priority", "type"],
-                additionalProperties: false,
-              },
+              items: { type: "object", properties: tcProps, required, additionalProperties: false },
             },
           },
           required: ["test_cases"],
@@ -50,13 +52,17 @@ serve(async (req) => {
       },
     }];
 
+    const sys = includeGherkin
+      ? "You are a senior QA engineer. Generate clear, atomic, prioritized test cases including positive, negative, and edge cases. For each test case ALSO output a full Gherkin BDD scenario (Feature, Scenario, Given/When/Then/And) in the 'gherkin' field."
+      : "You are a senior QA engineer. Generate clear, atomic, prioritized test cases including positive, negative, and edge cases.";
+
     const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are a senior QA engineer. Generate clear, atomic, prioritized test cases including positive, negative, and edge cases." },
+          { role: "system", content: sys },
           { role: "user", content: `Generate ${count} thorough test cases for this requirement:\n\n${requirement}` },
         ],
         tools,
@@ -65,22 +71,22 @@ serve(async (req) => {
     });
 
     if (!resp.ok) {
-      if (resp.status === 429) return new Response(JSON.stringify({ error: "Rate limit exceeded. Try again shortly." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      if (resp.status === 402) return new Response(JSON.stringify({ error: "AI credits exhausted. Add credits in Settings → Workspace → Usage." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      const t = await resp.text();
-      console.error("AI error", resp.status, t);
-      return new Response(JSON.stringify({ error: "AI gateway error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (resp.status === 429) return j({ error: "Rate limit exceeded. Try again shortly." }, 429);
+      if (resp.status === 402) return j({ error: "AI credits exhausted." }, 402);
+      console.error("AI error", resp.status, await resp.text());
+      return j({ error: "AI gateway error" }, 500);
     }
 
     const data = await resp.json();
     const call = data.choices?.[0]?.message?.tool_calls?.[0];
     const args = call ? JSON.parse(call.function.arguments) : { test_cases: [] };
-
-    return new Response(JSON.stringify(args), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return j(args);
   } catch (e) {
     console.error(e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return j({ error: e instanceof Error ? e.message : "Unknown" }, 500);
   }
 });
+
+function j(b: any, s = 200) {
+  return new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+}

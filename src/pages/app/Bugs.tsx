@@ -66,6 +66,27 @@ export default function Bugs() {
   const fileRefDetail = useRef<HTMLInputElement>(null);
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+  const [dupes, setDupes] = useState<Bug[]>([]);
+
+  const findDuplicates = (title: string, desc: string, projectId: string): Bug[] => {
+    const tokens = new Set(
+      `${title} ${desc}`.toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(t => t.length > 3)
+    );
+    if (tokens.size === 0) return [];
+    return bugs
+      .filter(b => b.project_id === projectId && b.status !== "closed")
+      .map(b => {
+        const bt = new Set(`${b.title} ${b.description ?? ""}`.toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(t => t.length > 3));
+        let overlap = 0;
+        tokens.forEach(t => bt.has(t) && overlap++);
+        const score = overlap / Math.max(tokens.size, 1);
+        return { b, score };
+      })
+      .filter(x => x.score >= 0.35)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5)
+      .map(x => x.b);
+  };
 
   const memberLabel = (em: string | null | undefined) => {
     if (!em) return "—";
@@ -93,21 +114,27 @@ export default function Bugs() {
     setAiLoading(false);
     if (error) return toast.error(error.message);
     const b = data?.bug ?? {};
-    setForm((f: any) => ({
-      ...f,
-      title: b.title || f.title,
-      description: b.description || f.description,
-      severity: b.severity || f.severity,
-      priority: b.priority || f.priority,
-      steps_to_reproduce: b.steps_to_reproduce || f.steps_to_reproduce,
-      expected_result: b.expected_result || f.expected_result,
-      actual_result: b.actual_result || f.actual_result,
-      environment: b.environment || f.environment,
-      browser: b.browser || f.browser,
-      device: b.device || f.device,
-      app_version: b.app_version || f.app_version,
-    }));
-    toast.success("AI filled the form — review & submit");
+    setForm((f: any) => {
+      const next = {
+        ...f,
+        title: b.title || f.title,
+        description: b.description || f.description,
+        severity: b.severity || f.severity,
+        priority: b.priority || f.priority,
+        steps_to_reproduce: b.steps_to_reproduce || f.steps_to_reproduce,
+        expected_result: b.expected_result || f.expected_result,
+        actual_result: b.actual_result || f.actual_result,
+        environment: b.environment || f.environment,
+        browser: b.browser || f.browser,
+        device: b.device || f.device,
+        app_version: b.app_version || f.app_version,
+      };
+      const found = findDuplicates(next.title, next.description, next.project_id);
+      setDupes(found);
+      if (found.length) toast.warning(`AI triage: ${found.length} possible duplicate(s) found`);
+      else toast.success("AI filled the form — review & submit");
+      return next;
+    });
   };
 
   const load = async () => {
@@ -225,7 +252,7 @@ export default function Bugs() {
           <h1 className="text-3xl font-bold">Bugs</h1>
           <p className="text-muted-foreground">Detailed bug tracking with attachments, environment & comments.</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setDupes([]); }}>
           <DialogTrigger asChild><Button className="bg-gradient-hero border-0 gap-2" disabled={!projects.length}><Plus className="h-4 w-4" />New bug</Button></DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader><DialogTitle>Log a bug</DialogTitle></DialogHeader>
@@ -238,6 +265,20 @@ export default function Bugs() {
                   {aiLoading ? "Generating…" : "Auto-fill form"}
                 </Button>
               </div>
+              {dupes.length > 0 && (
+                <div className="rounded-lg border border-warning/40 bg-warning/5 p-3 space-y-2">
+                  <div className="text-sm font-medium text-warning">⚠ Possible duplicates ({dupes.length})</div>
+                  <ul className="space-y-1 text-xs">
+                    {dupes.map(d => (
+                      <li key={d.id} className="flex items-center gap-2">
+                        <Badge variant="outline" className={sevColor[d.severity]}>{d.severity}</Badge>
+                        <button type="button" className="text-left hover:underline truncate" onClick={() => { setOpen(false); openDetail(d); }}>{d.title}</button>
+                        <span className="text-muted-foreground ml-auto">{cap(d.status)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <div><Label>Project</Label>
                   <Select value={form.project_id} onValueChange={v => setForm({ ...form, project_id: v, module_id: "", linked_test_case: "" })}>
