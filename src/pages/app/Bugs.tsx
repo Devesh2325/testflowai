@@ -66,6 +66,27 @@ export default function Bugs() {
   const fileRefDetail = useRef<HTMLInputElement>(null);
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+  const [dupes, setDupes] = useState<Bug[]>([]);
+
+  const findDuplicates = (title: string, desc: string, projectId: string): Bug[] => {
+    const tokens = new Set(
+      `${title} ${desc}`.toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(t => t.length > 3)
+    );
+    if (tokens.size === 0) return [];
+    return bugs
+      .filter(b => b.project_id === projectId && b.status !== "closed")
+      .map(b => {
+        const bt = new Set(`${b.title} ${b.description ?? ""}`.toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(t => t.length > 3));
+        let overlap = 0;
+        tokens.forEach(t => bt.has(t) && overlap++);
+        const score = overlap / Math.max(tokens.size, 1);
+        return { b, score };
+      })
+      .filter(x => x.score >= 0.35)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5)
+      .map(x => x.b);
+  };
 
   const memberLabel = (em: string | null | undefined) => {
     if (!em) return "—";
