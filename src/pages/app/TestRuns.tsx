@@ -197,6 +197,8 @@ export default function TestRuns() {
               {STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
             </SelectContent>
           </Select>
+          <Button size="sm" variant="ghost" className="h-8 gap-1" onClick={expandAll}><ChevronDown className="h-3.5 w-3.5" />Expand all</Button>
+          <Button size="sm" variant="ghost" className="h-8 gap-1" onClick={collapseAll}><ChevronRight className="h-3.5 w-3.5" />Collapse</Button>
           <div className="ml-auto text-xs text-muted-foreground">{filtered.length} of {total}</div>
         </Card>
 
