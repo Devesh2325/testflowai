@@ -163,6 +163,56 @@ export default function Landing() {
         </Card>
       </section>
 
+      {/* Testimonials */}
+      <section id="testimonials" className="container py-20">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold">Loved by <span className="text-gradient">QA teams</span></h2>
+          <p className="text-muted-foreground mt-3">What testers, leads, and engineering managers say.</p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-5">
+          {[
+            { q: "We cut regression cycles in half. The AI test generation is genuinely useful — not a gimmick.", n: "Priya S.", r: "QA Lead, Fintech" },
+            { q: "Finally a tool that doesn't feel like Jira from 2012. Onboarding took 10 minutes.", n: "Marcus T.", r: "Engineering Manager" },
+            { q: "Bug triage with duplicate detection saves my team hours every week. Worth it for that alone.", n: "Ana R.", r: "Senior SDET" },
+          ].map(t => (
+            <Card key={t.n} className="p-6 hover:shadow-elegant transition-shadow bg-gradient-card">
+              <div className="text-yellow-500 mb-3">★★★★★</div>
+              <p className="text-sm leading-relaxed mb-5">"{t.q}"</p>
+              <div className="text-sm font-semibold">{t.n}</div>
+              <div className="text-xs text-muted-foreground">{t.r}</div>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="container py-20">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold">Simple, <span className="text-gradient">transparent pricing</span></h2>
+          <p className="text-muted-foreground mt-3">Start free. Upgrade when your team grows.</p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+          {[
+            { name: "Free", price: "$0", desc: "For solo testers and small projects.", features: ["1 workspace", "Up to 3 projects", "50 AI generations / mo", "Community support"], cta: "Start free", highlight: false },
+            { name: "Pro", price: "$19", suffix: "/user/mo", desc: "For growing QA teams.", features: ["Unlimited projects", "Unlimited AI generations", "Bug triage + duplicates", "Integrations (Jira, Slack)", "Priority support"], cta: "Start Pro trial", highlight: true },
+            { name: "Enterprise", price: "Custom", desc: "SSO, audit logs, dedicated support.", features: ["Everything in Pro", "SSO / SAML", "Audit logs & RBAC", "SLA & dedicated CSM"], cta: "Contact sales", highlight: false },
+          ].map(p => (
+            <Card key={p.name} className={`p-6 flex flex-col ${p.highlight ? "border-primary shadow-glow bg-gradient-card scale-[1.02]" : ""}`}>
+              {p.highlight && <div className="text-xs font-semibold text-primary mb-2 uppercase tracking-wider">Most popular</div>}
+              <h3 className="text-xl font-bold">{p.name}</h3>
+              <div className="mt-3 mb-1"><span className="text-4xl font-bold">{p.price}</span>{p.suffix && <span className="text-sm text-muted-foreground">{p.suffix}</span>}</div>
+              <p className="text-sm text-muted-foreground mb-5">{p.desc}</p>
+              <ul className="space-y-2 mb-6 flex-1">
+                {p.features.map(f => <li key={f} className="flex items-start gap-2 text-sm"><Check className="h-4 w-4 text-success mt-0.5 shrink-0" />{f}</li>)}
+              </ul>
+              <Button asChild className={p.highlight ? "bg-gradient-hero border-0" : ""} variant={p.highlight ? "default" : "outline"}>
+                <Link to={p.name === "Enterprise" ? "#contact" : "/auth"}>{p.cta}</Link>
+              </Button>
+            </Card>
+          ))}
+        </div>
+      </section>
+
       {/* CTA */}
       <section id="learning" className="container py-24 text-center">
         <h2 className="text-4xl font-bold mb-4">Ready to <span className="text-gradient">level up your QA?</span></h2>
