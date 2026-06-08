@@ -7,9 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import ThemeToggle from "@/components/ThemeToggle";
 import {
   Sparkles, Zap, Bug, BarChart3, GraduationCap, Bot, ShieldCheck,
-  ArrowRight, TestTube2, CheckCircle2, Workflow, Send
+  ArrowRight, TestTube2, CheckCircle2, Workflow, Send, Check
 } from "lucide-react";
 
 const features = [
@@ -47,10 +48,12 @@ export default function Landing() {
           <div id="nav-links" className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
             <a id="nav-link-features" href="#features" className="hover:text-foreground">Features</a>
             <a id="nav-link-ai" href="#ai" className="hover:text-foreground">AI</a>
+            <a id="nav-link-pricing" href="#pricing" className="hover:text-foreground">Pricing</a>
             <a id="nav-link-learning" href="#learning" className="hover:text-foreground">Learning</a>
             <a id="nav-link-contact" href="#contact" className="hover:text-foreground">Contact</a>
           </div>
           <div id="nav-actions" className="flex items-center gap-2">
+            <ThemeToggle />
             <Button id="btn-sign-in" variant="ghost" asChild><Link to="/auth">Sign in</Link></Button>
             <Button id="btn-get-started" asChild className="bg-gradient-hero hover:opacity-90 border-0"><Link to="/auth">Get started</Link></Button>
           </div>
@@ -60,27 +63,41 @@ export default function Landing() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-subtle" />
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[800px] rounded-full bg-gradient-hero opacity-20 blur-3xl" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[800px] rounded-full bg-gradient-hero opacity-20 blur-3xl animate-[pulse_8s_ease-in-out_infinite]" />
+        <div className="absolute top-1/4 -left-20 h-[300px] w-[300px] rounded-full bg-primary/20 blur-3xl animate-[pulse_10s_ease-in-out_infinite]" />
+        <div className="absolute top-1/3 -right-20 h-[260px] w-[260px] rounded-full bg-accent/20 blur-3xl animate-[pulse_12s_ease-in-out_infinite]" />
         <div className="container relative pt-20 pb-24 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs text-muted-foreground shadow-sm mb-6">
+          <div className="inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs text-muted-foreground shadow-sm mb-6 animate-fade-in">
             <Sparkles className="h-3 w-3 text-primary" />
             AI-first test management for modern QA teams
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight max-w-4xl mx-auto leading-[1.05]">
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight max-w-4xl mx-auto leading-[1.05] animate-fade-in" style={{ animationDelay: "80ms", animationFillMode: "backwards" }}>
             Test smarter. <span className="text-gradient">Release faster.</span>
           </h1>
-          <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: "180ms", animationFillMode: "backwards" }}>
             The intuitive test management platform that combines manual testing, automation, and AI — so your team ships with confidence.
           </p>
-          <div className="mt-10 flex items-center justify-center gap-3">
-            <Button id="btn-hero-start-free" size="lg" asChild className="bg-gradient-hero hover:opacity-90 border-0 shadow-glow gap-2 h-12 px-6">
+          <div className="mt-10 flex items-center justify-center gap-3 animate-fade-in" style={{ animationDelay: "280ms", animationFillMode: "backwards" }}>
+            <Button id="btn-hero-start-free" size="lg" asChild className="bg-gradient-hero hover:opacity-90 border-0 shadow-glow gap-2 h-12 px-6 hover-scale">
               <Link to="/auth">Start free <ArrowRight className="h-4 w-4" /></Link>
             </Button>
-            <Button id="btn-hero-view-demo" size="lg" variant="outline" className="h-12 px-6">View live demo</Button>
+            <Button id="btn-hero-view-demo" size="lg" variant="outline" className="h-12 px-6" asChild><a href="#demo">View live demo</a></Button>
           </div>
-          <div className="mt-12 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
+          <div className="mt-12 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground animate-fade-in" style={{ animationDelay: "380ms", animationFillMode: "backwards" }}>
             {["50% less testing time", "AI bug detection", "Manual + Automation"].map(t => (
               <div key={t} className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" />{t}</div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Trusted by / logos strip */}
+      <section className="border-y bg-muted/30">
+        <div className="container py-8">
+          <p className="text-center text-xs uppercase tracking-widest text-muted-foreground mb-6">Trusted by QA teams worldwide</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-4 opacity-70">
+            {["Acme Corp", "Globex", "Initech", "Umbrella", "Stark Industries", "Wayne Enterprises"].map(n => (
+              <span key={n} className="text-lg font-semibold text-muted-foreground">{n}</span>
             ))}
           </div>
         </div>
@@ -145,6 +162,56 @@ export default function Landing() {
             <Button id="btn-try-ai-assistant" size="lg" variant="secondary" asChild className="mt-8"><Link to="/auth">Try the AI Assistant</Link></Button>
           </div>
         </Card>
+      </section>
+
+      {/* Testimonials */}
+      <section id="testimonials" className="container py-20">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold">Loved by <span className="text-gradient">QA teams</span></h2>
+          <p className="text-muted-foreground mt-3">What testers, leads, and engineering managers say.</p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-5">
+          {[
+            { q: "We cut regression cycles in half. The AI test generation is genuinely useful — not a gimmick.", n: "Priya S.", r: "QA Lead, Fintech" },
+            { q: "Finally a tool that doesn't feel like Jira from 2012. Onboarding took 10 minutes.", n: "Marcus T.", r: "Engineering Manager" },
+            { q: "Bug triage with duplicate detection saves my team hours every week. Worth it for that alone.", n: "Ana R.", r: "Senior SDET" },
+          ].map(t => (
+            <Card key={t.n} className="p-6 hover:shadow-elegant transition-shadow bg-gradient-card">
+              <div className="text-yellow-500 mb-3">★★★★★</div>
+              <p className="text-sm leading-relaxed mb-5">"{t.q}"</p>
+              <div className="text-sm font-semibold">{t.n}</div>
+              <div className="text-xs text-muted-foreground">{t.r}</div>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="container py-20">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold">Simple, <span className="text-gradient">transparent pricing</span></h2>
+          <p className="text-muted-foreground mt-3">Start free. Upgrade when your team grows.</p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+          {[
+            { name: "Free", price: "$0", desc: "For solo testers and small projects.", features: ["1 workspace", "Up to 3 projects", "50 AI generations / mo", "Community support"], cta: "Start free", highlight: false },
+            { name: "Pro", price: "$19", suffix: "/user/mo", desc: "For growing QA teams.", features: ["Unlimited projects", "Unlimited AI generations", "Bug triage + duplicates", "Integrations (Jira, Slack)", "Priority support"], cta: "Start Pro trial", highlight: true },
+            { name: "Enterprise", price: "Custom", desc: "SSO, audit logs, dedicated support.", features: ["Everything in Pro", "SSO / SAML", "Audit logs & RBAC", "SLA & dedicated CSM"], cta: "Contact sales", highlight: false },
+          ].map(p => (
+            <Card key={p.name} className={`p-6 flex flex-col ${p.highlight ? "border-primary shadow-glow bg-gradient-card scale-[1.02]" : ""}`}>
+              {p.highlight && <div className="text-xs font-semibold text-primary mb-2 uppercase tracking-wider">Most popular</div>}
+              <h3 className="text-xl font-bold">{p.name}</h3>
+              <div className="mt-3 mb-1"><span className="text-4xl font-bold">{p.price}</span>{p.suffix && <span className="text-sm text-muted-foreground">{p.suffix}</span>}</div>
+              <p className="text-sm text-muted-foreground mb-5">{p.desc}</p>
+              <ul className="space-y-2 mb-6 flex-1">
+                {p.features.map(f => <li key={f} className="flex items-start gap-2 text-sm"><Check className="h-4 w-4 text-success mt-0.5 shrink-0" />{f}</li>)}
+              </ul>
+              <Button asChild className={p.highlight ? "bg-gradient-hero border-0" : ""} variant={p.highlight ? "default" : "outline"}>
+                <Link to={p.name === "Enterprise" ? "#contact" : "/auth"}>{p.cta}</Link>
+              </Button>
+            </Card>
+          ))}
+        </div>
       </section>
 
       {/* CTA */}

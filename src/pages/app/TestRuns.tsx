@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWorkspace } from "@/hooks/useWorkspace";
@@ -10,14 +10,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, PlayCircle, CheckCircle2, XCircle, MinusCircle, ChevronRight, Bug, Check, Trash2, Sparkles, Loader2 } from "lucide-react";
+import { Plus, PlayCircle, CheckCircle2, XCircle, MinusCircle, ChevronRight, ChevronDown, Bug, Check, Trash2, Sparkles, Loader2, ListChecks } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
 type Run = { id: string; name: string; status: string; project_id: string; created_at: string };
 type Project = { id: string; name: string };
 type Module = { id: string; name: string; project_id: string };
-type TC = { id: string; title: string; module_id: string | null };
+type TC = { id: string; title: string; module_id: string | null; steps: string | null; expected_result: string | null };
 type Exec = { id: string; status: string; test_case_id: string; notes: string | null; browser: string | null; device: string | null };
 type BugRow = { id: string; title: string; severity: string; status: string; linked_test_case: string | null; run_id: string | null };
 
@@ -53,6 +53,10 @@ export default function TestRuns() {
   const [summary, setSummary] = useState<string | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryOpen, setSummaryOpen] = useState(false);
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const toggleExpand = (id: string) => setExpanded(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const expandAll = () => setExpanded(new Set(executions.map(e => e.id)));
+  const collapseAll = () => setExpanded(new Set());
 
   const runSummary = async () => {
     if (!activeRun) return;
@@ -69,7 +73,7 @@ export default function TestRuns() {
       supabase.from("test_runs").select("*").order("created_at", { ascending: false }),
       supabase.from("projects").select("id,name"),
       supabase.from("modules").select("id,name,project_id"),
-      supabase.from("test_cases").select("id,title,module_id"),
+      supabase.from("test_cases").select("id,title,module_id,steps,expected_result"),
       supabase.from("bugs").select("id,title,severity,status,linked_test_case,run_id"),
     ]);
     setRuns(r.data ?? []); setProjects(p.data ?? []); setModules(m.data ?? []);
@@ -193,6 +197,8 @@ export default function TestRuns() {
               {STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
             </SelectContent>
           </Select>
+          <Button size="sm" variant="ghost" className="h-8 gap-1" onClick={expandAll}><ChevronDown className="h-3.5 w-3.5" />Expand all</Button>
+          <Button size="sm" variant="ghost" className="h-8 gap-1" onClick={collapseAll}><ChevronRight className="h-3.5 w-3.5" />Collapse</Button>
           <div className="ml-auto text-xs text-muted-foreground">{filtered.length} of {total}</div>
         </Card>
 
@@ -216,9 +222,25 @@ export default function TestRuns() {
                   const tc = cases.find(c => c.id === e.test_case_id);
                   const mod = tc ? modules.find(m => m.id === tc.module_id) : null;
                   const linked = bugs.filter(b => b.linked_test_case === e.test_case_id && (b.run_id === activeRun.id || !b.run_id));
+                  const isOpen = expanded.has(e.id);
+                  const hasDetail = !!(tc?.steps || tc?.expected_result);
                   return (
-                    <tr key={e.id} className="border-b hover:bg-muted/30">
-                      <td className="p-2 align-top font-medium">{tc?.title ?? "—"}</td>
+                    <Fragment key={e.id}>
+                    <tr className="border-b hover:bg-muted/30">
+                      <td className="p-2 align-top font-medium">
+                        <div className="flex items-start gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => toggleExpand(e.id)}
+                            className="mt-0.5 p-0.5 rounded hover:bg-muted text-muted-foreground shrink-0"
+                            aria-label={isOpen ? "Hide steps" : "Show steps"}
+                            title={hasDetail ? (isOpen ? "Hide steps" : "Show steps") : "No steps recorded"}
+                          >
+                            {isOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                          </button>
+                          <span>{tc?.title ?? "—"}</span>
+                        </div>
+                      </td>
                       <td className="p-2 align-top text-xs text-muted-foreground">{mod?.name ?? "—"}</td>
                       <td className="p-2 align-top">
                         <div className="flex items-center gap-1">
@@ -259,6 +281,29 @@ export default function TestRuns() {
                         {savedFlash === e.id && <span className="inline-flex items-center gap-1 text-success"><Check className="h-3 w-3" />Saved</span>}
                       </td>
                     </tr>
+                    {isOpen && (
+                      <tr className="border-b bg-muted/20">
+                        <td colSpan={8} className="p-4">
+                          <div className="grid md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 flex items-center gap-1.5">
+                                <ListChecks className="h-3.5 w-3.5" />Steps
+                              </div>
+                              {tc?.steps
+                                ? <pre className="whitespace-pre-wrap font-sans text-sm bg-background/60 border rounded p-3">{tc.steps}</pre>
+                                : <div className="text-xs text-muted-foreground italic">No steps recorded for this test case. <Link to="/app/test-cases" className="text-primary underline">Add steps</Link></div>}
+                            </div>
+                            <div>
+                              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Expected result</div>
+                              {tc?.expected_result
+                                ? <pre className="whitespace-pre-wrap font-sans text-sm bg-background/60 border rounded p-3">{tc.expected_result}</pre>
+                                : <div className="text-xs text-muted-foreground italic">No expected result recorded.</div>}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                    </Fragment>
                   );
                 })}
                 {!filtered.length && (
