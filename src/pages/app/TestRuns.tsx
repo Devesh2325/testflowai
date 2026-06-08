@@ -220,9 +220,25 @@ export default function TestRuns() {
                   const tc = cases.find(c => c.id === e.test_case_id);
                   const mod = tc ? modules.find(m => m.id === tc.module_id) : null;
                   const linked = bugs.filter(b => b.linked_test_case === e.test_case_id && (b.run_id === activeRun.id || !b.run_id));
+                  const isOpen = expanded.has(e.id);
+                  const hasDetail = !!(tc?.steps || tc?.expected_result);
                   return (
-                    <tr key={e.id} className="border-b hover:bg-muted/30">
-                      <td className="p-2 align-top font-medium">{tc?.title ?? "—"}</td>
+                    <Fragment key={e.id}>
+                    <tr className="border-b hover:bg-muted/30">
+                      <td className="p-2 align-top font-medium">
+                        <div className="flex items-start gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => toggleExpand(e.id)}
+                            className="mt-0.5 p-0.5 rounded hover:bg-muted text-muted-foreground shrink-0"
+                            aria-label={isOpen ? "Hide steps" : "Show steps"}
+                            title={hasDetail ? (isOpen ? "Hide steps" : "Show steps") : "No steps recorded"}
+                          >
+                            {isOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                          </button>
+                          <span>{tc?.title ?? "—"}</span>
+                        </div>
+                      </td>
                       <td className="p-2 align-top text-xs text-muted-foreground">{mod?.name ?? "—"}</td>
                       <td className="p-2 align-top">
                         <div className="flex items-center gap-1">
@@ -263,6 +279,29 @@ export default function TestRuns() {
                         {savedFlash === e.id && <span className="inline-flex items-center gap-1 text-success"><Check className="h-3 w-3" />Saved</span>}
                       </td>
                     </tr>
+                    {isOpen && (
+                      <tr className="border-b bg-muted/20">
+                        <td colSpan={8} className="p-4">
+                          <div className="grid md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 flex items-center gap-1.5">
+                                <ListChecks className="h-3.5 w-3.5" />Steps
+                              </div>
+                              {tc?.steps
+                                ? <pre className="whitespace-pre-wrap font-sans text-sm bg-background/60 border rounded p-3">{tc.steps}</pre>
+                                : <div className="text-xs text-muted-foreground italic">No steps recorded for this test case. <Link to="/app/test-cases" className="text-primary underline">Add steps</Link></div>}
+                            </div>
+                            <div>
+                              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Expected result</div>
+                              {tc?.expected_result
+                                ? <pre className="whitespace-pre-wrap font-sans text-sm bg-background/60 border rounded p-3">{tc.expected_result}</pre>
+                                : <div className="text-xs text-muted-foreground italic">No expected result recorded.</div>}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                    </Fragment>
                   );
                 })}
                 {!filtered.length && (
