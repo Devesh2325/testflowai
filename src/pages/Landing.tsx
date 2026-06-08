@@ -7,9 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import ThemeToggle from "@/components/ThemeToggle";
 import {
   Sparkles, Zap, Bug, BarChart3, GraduationCap, Bot, ShieldCheck,
-  ArrowRight, TestTube2, CheckCircle2, Workflow, Send
+  ArrowRight, TestTube2, CheckCircle2, Workflow, Send, Check
 } from "lucide-react";
 
 const features = [
@@ -51,6 +52,7 @@ export default function Landing() {
             <a id="nav-link-contact" href="#contact" className="hover:text-foreground">Contact</a>
           </div>
           <div id="nav-actions" className="flex items-center gap-2">
+            <ThemeToggle />
             <Button id="btn-sign-in" variant="ghost" asChild><Link to="/auth">Sign in</Link></Button>
             <Button id="btn-get-started" asChild className="bg-gradient-hero hover:opacity-90 border-0"><Link to="/auth">Get started</Link></Button>
           </div>
@@ -60,27 +62,41 @@ export default function Landing() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-subtle" />
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[800px] rounded-full bg-gradient-hero opacity-20 blur-3xl" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[800px] rounded-full bg-gradient-hero opacity-20 blur-3xl animate-[pulse_8s_ease-in-out_infinite]" />
+        <div className="absolute top-1/4 -left-20 h-[300px] w-[300px] rounded-full bg-primary/20 blur-3xl animate-[pulse_10s_ease-in-out_infinite]" />
+        <div className="absolute top-1/3 -right-20 h-[260px] w-[260px] rounded-full bg-accent/20 blur-3xl animate-[pulse_12s_ease-in-out_infinite]" />
         <div className="container relative pt-20 pb-24 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs text-muted-foreground shadow-sm mb-6">
+          <div className="inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs text-muted-foreground shadow-sm mb-6 animate-fade-in">
             <Sparkles className="h-3 w-3 text-primary" />
             AI-first test management for modern QA teams
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight max-w-4xl mx-auto leading-[1.05]">
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight max-w-4xl mx-auto leading-[1.05] animate-fade-in" style={{ animationDelay: "80ms", animationFillMode: "backwards" }}>
             Test smarter. <span className="text-gradient">Release faster.</span>
           </h1>
-          <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: "180ms", animationFillMode: "backwards" }}>
             The intuitive test management platform that combines manual testing, automation, and AI — so your team ships with confidence.
           </p>
-          <div className="mt-10 flex items-center justify-center gap-3">
-            <Button id="btn-hero-start-free" size="lg" asChild className="bg-gradient-hero hover:opacity-90 border-0 shadow-glow gap-2 h-12 px-6">
+          <div className="mt-10 flex items-center justify-center gap-3 animate-fade-in" style={{ animationDelay: "280ms", animationFillMode: "backwards" }}>
+            <Button id="btn-hero-start-free" size="lg" asChild className="bg-gradient-hero hover:opacity-90 border-0 shadow-glow gap-2 h-12 px-6 hover-scale">
               <Link to="/auth">Start free <ArrowRight className="h-4 w-4" /></Link>
             </Button>
-            <Button id="btn-hero-view-demo" size="lg" variant="outline" className="h-12 px-6">View live demo</Button>
+            <Button id="btn-hero-view-demo" size="lg" variant="outline" className="h-12 px-6" asChild><a href="#demo">View live demo</a></Button>
           </div>
-          <div className="mt-12 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
+          <div className="mt-12 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground animate-fade-in" style={{ animationDelay: "380ms", animationFillMode: "backwards" }}>
             {["50% less testing time", "AI bug detection", "Manual + Automation"].map(t => (
               <div key={t} className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success" />{t}</div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Trusted by / logos strip */}
+      <section className="border-y bg-muted/30">
+        <div className="container py-8">
+          <p className="text-center text-xs uppercase tracking-widest text-muted-foreground mb-6">Trusted by QA teams worldwide</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-4 opacity-70">
+            {["Acme Corp", "Globex", "Initech", "Umbrella", "Stark Industries", "Wayne Enterprises"].map(n => (
+              <span key={n} className="text-lg font-semibold text-muted-foreground">{n}</span>
             ))}
           </div>
         </div>
