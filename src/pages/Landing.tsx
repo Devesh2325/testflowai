@@ -48,6 +48,7 @@ export default function Landing() {
           <div id="nav-links" className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
             <a id="nav-link-features" href="#features" className="hover:text-foreground">Features</a>
             <a id="nav-link-ai" href="#ai" className="hover:text-foreground">AI</a>
+            <a id="nav-link-pricing" href="#pricing" className="hover:text-foreground">Pricing</a>
             <a id="nav-link-learning" href="#learning" className="hover:text-foreground">Learning</a>
             <a id="nav-link-contact" href="#contact" className="hover:text-foreground">Contact</a>
           </div>
