@@ -53,6 +53,10 @@ export default function TestRuns() {
   const [summary, setSummary] = useState<string | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryOpen, setSummaryOpen] = useState(false);
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const toggleExpand = (id: string) => setExpanded(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const expandAll = () => setExpanded(new Set(executions.map(e => e.id)));
+  const collapseAll = () => setExpanded(new Set());
 
   const runSummary = async () => {
     if (!activeRun) return;
