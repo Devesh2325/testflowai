@@ -8,6 +8,7 @@ import WorkspaceSwitcher from "@/components/WorkspaceSwitcher";
 import { Button } from "@/components/ui/button";
 import { NavLink } from "react-router-dom";
 import { WorkspaceProvider, useWorkspace } from "@/hooks/useWorkspace";
+import ThemeToggle from "@/components/ThemeToggle";
 
 function WorkspaceScopedOutlet() {
   const { current } = useWorkspace();
@@ -30,6 +31,7 @@ export default function AppLayout() {
               <Button asChild size="sm" variant="outline" className="gap-1.5">
                 <NavLink to="/app/ai"><Sparkles className="h-4 w-4 text-primary" /> AI</NavLink>
               </Button>
+              <ThemeToggle />
               <NotificationsBell />
             </div>
           </header>
