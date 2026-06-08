@@ -10,14 +10,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, PlayCircle, CheckCircle2, XCircle, MinusCircle, ChevronRight, Bug, Check, Trash2, Sparkles, Loader2 } from "lucide-react";
+import { Plus, PlayCircle, CheckCircle2, XCircle, MinusCircle, ChevronRight, ChevronDown, Bug, Check, Trash2, Sparkles, Loader2, ListChecks } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
 type Run = { id: string; name: string; status: string; project_id: string; created_at: string };
 type Project = { id: string; name: string };
 type Module = { id: string; name: string; project_id: string };
-type TC = { id: string; title: string; module_id: string | null };
+type TC = { id: string; title: string; module_id: string | null; steps: string | null; expected_result: string | null };
 type Exec = { id: string; status: string; test_case_id: string; notes: string | null; browser: string | null; device: string | null };
 type BugRow = { id: string; title: string; severity: string; status: string; linked_test_case: string | null; run_id: string | null };
 
@@ -69,7 +69,7 @@ export default function TestRuns() {
       supabase.from("test_runs").select("*").order("created_at", { ascending: false }),
       supabase.from("projects").select("id,name"),
       supabase.from("modules").select("id,name,project_id"),
-      supabase.from("test_cases").select("id,title,module_id"),
+      supabase.from("test_cases").select("id,title,module_id,steps,expected_result"),
       supabase.from("bugs").select("id,title,severity,status,linked_test_case,run_id"),
     ]);
     setRuns(r.data ?? []); setProjects(p.data ?? []); setModules(m.data ?? []);
