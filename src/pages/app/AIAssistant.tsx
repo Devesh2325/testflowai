@@ -23,6 +23,7 @@ export default function AIAssistant() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectId, setProjectId] = useState("");
   const [format, setFormat] = useState<"standard" | "gherkin" | "both">("standard");
+  const [count, setCount] = useState<number>(5);
 
   // Screenshot tab
   const [shotLoading, setShotLoading] = useState(false);
@@ -39,7 +40,7 @@ export default function AIAssistant() {
   const generate = async () => {
     if (!requirement.trim()) return toast.error("Enter a requirement");
     setLoading(true); setResults([]);
-    const { data, error } = await supabase.functions.invoke("generate-test-cases", { body: { requirement, count: 5, format } });
+    const { data, error } = await supabase.functions.invoke("generate-test-cases", { body: { requirement, count, format } });
     setLoading(false);
     if (error) return toast.error(error.message);
     if (data?.error) return toast.error(data.error);
@@ -107,6 +108,15 @@ export default function AIAssistant() {
                     <SelectItem value="standard">Standard steps</SelectItem>
                     <SelectItem value="gherkin">Gherkin / BDD</SelectItem>
                     <SelectItem value="both">Both</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label className="text-xs text-muted-foreground"># of cases</Label>
+                <Select value={String(count)} onValueChange={v => setCount(Number(v))}>
+                  <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {[3, 5, 8, 10, 15, 20, 25, 30].map(n => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>

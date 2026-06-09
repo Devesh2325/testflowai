@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Plus, PlayCircle, CheckCircle2, XCircle, MinusCircle, ChevronRight, ChevronDown, Bug, Check, Trash2, Sparkles, Loader2, ListChecks } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
@@ -243,12 +244,20 @@ export default function TestRuns() {
                       </td>
                       <td className="p-2 align-top text-xs text-muted-foreground">{mod?.name ?? "—"}</td>
                       <td className="p-2 align-top">
-                        <div className="flex items-center gap-1">
-                          <Button size="sm" variant="ghost" className={`h-7 px-2 ${e.status === "pass" ? "bg-success/15 text-success" : ""}`} onClick={() => updateExec(e.id, { status: "pass" })}><CheckCircle2 className="h-3.5 w-3.5" /></Button>
-                          <Button size="sm" variant="ghost" className={`h-7 px-2 ${e.status === "fail" ? "bg-destructive/15 text-destructive" : ""}`} onClick={() => updateExec(e.id, { status: "fail" })}><XCircle className="h-3.5 w-3.5" /></Button>
-                          <Button size="sm" variant="ghost" className={`h-7 px-2 ${e.status === "blocked" ? "bg-warning/15 text-warning" : ""}`} onClick={() => updateExec(e.id, { status: "blocked" })}><MinusCircle className="h-3.5 w-3.5" /></Button>
-                          <Badge variant="outline" className={`ml-1 text-xs ${statusColor[e.status]}`}>{e.status}</Badge>
-                        </div>
+                        <TooltipProvider delayDuration={150}>
+                          <div className="flex items-center gap-1">
+                            <Tooltip><TooltipTrigger asChild>
+                              <Button size="sm" variant="ghost" className={`h-7 px-2 ${e.status === "pass" ? "bg-success/15 text-success" : ""}`} onClick={() => updateExec(e.id, { status: "pass" })}><CheckCircle2 className="h-3.5 w-3.5" /></Button>
+                            </TooltipTrigger><TooltipContent>Mark as Pass</TooltipContent></Tooltip>
+                            <Tooltip><TooltipTrigger asChild>
+                              <Button size="sm" variant="ghost" className={`h-7 px-2 ${e.status === "fail" ? "bg-destructive/15 text-destructive" : ""}`} onClick={() => updateExec(e.id, { status: "fail" })}><XCircle className="h-3.5 w-3.5" /></Button>
+                            </TooltipTrigger><TooltipContent>Mark as Fail</TooltipContent></Tooltip>
+                            <Tooltip><TooltipTrigger asChild>
+                              <Button size="sm" variant="ghost" className={`h-7 px-2 ${e.status === "blocked" ? "bg-warning/15 text-warning" : ""}`} onClick={() => updateExec(e.id, { status: "blocked" })}><MinusCircle className="h-3.5 w-3.5" /></Button>
+                            </TooltipTrigger><TooltipContent>Mark as Blocked</TooltipContent></Tooltip>
+                            <Badge variant="outline" className={`ml-1 text-xs ${statusColor[e.status]}`}>{e.status}</Badge>
+                          </div>
+                        </TooltipProvider>
                       </td>
                       <td className="p-2 align-top">
                         <Input data-cell={`${e.id}-browser`} defaultValue={e.browser ?? ""} placeholder="Chrome"
