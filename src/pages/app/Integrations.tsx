@@ -49,23 +49,46 @@ const PROVIDERS: ProviderDef[] = [
       "For production, verify a domain in Resend and use a from-address on that domain.",
     ]},
   },
-  { id: "github", name: "GitHub Actions", desc: "Trigger runs from CI and post results back.", icon: Github, category: "CI/CD",
-    fields: [{ key: "repo", label: "owner/repo", placeholder: "acme/web" }],
-    docs: { title: "GitHub Actions", steps: [
-      "Add a workflow that calls your TestFlow API after the test job.",
-      "Store any required tokens as GitHub Action secrets.",
+  { id: "github", name: "GitHub Issues", desc: "Auto-create GitHub issues from bugs.", icon: Github, category: "Issue Tracking",
+    fields: [
+      { key: "repo", label: "owner/repo", placeholder: "acme/web" },
+      { key: "token", label: "Personal access token", placeholder: "ghp_...", type: "password" },
+    ],
+    docs: { title: "GitHub setup", steps: [
+      "Go to GitHub → Settings → Developer settings → Personal access tokens (fine-grained).",
+      "Create a token with 'Issues: Read & write' on the target repo.",
+      "Paste owner/repo (e.g. acme/web) and the token here, then enable.",
+      "Use 'Send test' to create a verification issue.",
     ]},
   },
-  { id: "jenkins", name: "Jenkins", desc: "Run tests on Jenkins pipelines.", icon: GitBranch, category: "CI/CD",
-    fields: [{ key: "url", label: "Jenkins URL", placeholder: "https://jenkins.acme.com" }],
-    docs: { title: "Jenkins", steps: ["Install the HTTP Request plugin.", "Add a post-build step that POSTs run results to TestFlow."] },
+  { id: "jenkins", name: "Jenkins", desc: "Trigger Jenkins jobs on test failure or release.", icon: GitBranch, category: "CI/CD",
+    fields: [
+      { key: "url", label: "Jenkins URL", placeholder: "https://jenkins.acme.com" },
+      { key: "job", label: "Job name", placeholder: "qa-regression" },
+      { key: "user", label: "Username (optional)", placeholder: "ci-bot" },
+      { key: "api_token", label: "API token (optional)", placeholder: "...", type: "password" },
+      { key: "token", label: "Build trigger token (optional)", placeholder: "...", type: "password" },
+    ],
+    docs: { title: "Jenkins", steps: [
+      "In the target job → Configure → 'Trigger builds remotely' and set a token.",
+      "Generate an API token under your user → Configure.",
+      "Save URL, job name, and credentials here. Test will trigger the build.",
+    ]},
   },
-  { id: "jira", name: "Jira", desc: "Sync bugs to a Jira project.", icon: Trello, category: "Issue Tracking",
+  { id: "jira", name: "Jira", desc: "Auto-create Jira issues from bugs.", icon: Trello, category: "Issue Tracking",
     fields: [
       { key: "url", label: "Jira URL", placeholder: "https://acme.atlassian.net" },
       { key: "project_key", label: "Project key", placeholder: "QA" },
+      { key: "email", label: "Atlassian account email", placeholder: "you@acme.com", type: "email" },
+      { key: "api_token", label: "API token", placeholder: "...", type: "password" },
+      { key: "issue_type", label: "Issue type (optional)", placeholder: "Bug" },
     ],
-    docs: { title: "Jira", steps: ["Create an API token at id.atlassian.com.", "Save the Jira URL and project key here."] },
+    docs: { title: "Jira", steps: [
+      "Create an API token at id.atlassian.com → Security → API tokens.",
+      "Find your Jira project key (e.g. QA).",
+      "Enter URL, project key, your Atlassian email, and the token here.",
+      "Use 'Send test' to create a verification issue in Jira.",
+    ]},
   },
   { id: "selenium", name: "Selenium Grid", desc: "Distribute browser tests across nodes.", icon: Bot, category: "Automation",
     fields: [{ key: "hub_url", label: "Hub URL", placeholder: "http://grid:4444" }],
@@ -187,7 +210,7 @@ export default function Integrations() {
                           <BookOpen className="h-3 w-3" />Docs
                         </Button>
                       )}
-                      {r?.enabled && (p.id === "slack" || p.id === "msteams" || p.id === "email") && (
+                      {r?.enabled && ["slack","msteams","email","jira","github","jenkins"].includes(p.id) && (
                         <Button size="sm" variant="ghost" className="h-7 gap-1 text-xs" onClick={() => sendTest(p)}>
                           <Send className="h-3 w-3" />Send test
                         </Button>
