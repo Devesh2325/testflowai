@@ -193,6 +193,18 @@ export default function Bugs() {
     const { error } = await supabase.from("bugs").insert(payload);
     if (error) return toast.error(error.message);
     toast.success("Bug logged");
+    // Fire-and-forget notification + auto-create in Jira/GitHub
+    const proj = projects.find(p => p.id === form.project_id)?.name ?? "project";
+    supabase.functions.invoke("send-notification", {
+      body: {
+        title: `🐞 New ${form.severity} bug: ${form.title}`,
+        message: `Project: ${proj}\nPriority: ${form.priority}\n\n${form.description || "(no description)"}`,
+      },
+    }).then(({ data }) => {
+      const r = (data as any)?.results ?? {};
+      if (r.jira?.ok && r.jira.issue_key) toast.success(`Jira issue ${r.jira.issue_key} created`);
+      if (r.github?.ok) toast.success(`GitHub issue created`);
+    }).catch(() => {});
     setOpen(false);
     setForm({ ...form, title: "", description: "", steps_to_reproduce: "", expected_result: "", actual_result: "" });
     if (fileRef.current) fileRef.current.value = "";

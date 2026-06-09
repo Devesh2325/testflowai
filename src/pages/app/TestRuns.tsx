@@ -115,6 +115,17 @@ export default function TestRuns() {
   const updateRunStatus = async (id: string, status: string) => {
     setRuns(rs => rs.map(r => r.id === id ? { ...r, status } : r));
     await supabase.from("test_runs").update({ status }).eq("id", id);
+    if (status === "completed" && activeRun?.id === id) {
+      const counts = executions.reduce((acc, e) => ({ ...acc, [e.status]: (acc[e.status] ?? 0) + 1 }), {} as Record<string, number>);
+      const total = executions.length || 1;
+      const passRate = Math.round(((counts.pass ?? 0) / total) * 100);
+      supabase.functions.invoke("send-notification", {
+        body: {
+          title: `✅ Run completed: ${activeRun.name}`,
+          message: `Pass ${counts.pass ?? 0} · Fail ${counts.fail ?? 0} · Blocked ${counts.blocked ?? 0} · ${passRate}% pass rate`,
+        },
+      }).catch(() => {});
+    }
   };
 
   const deleteRun = async (id: string) => {
