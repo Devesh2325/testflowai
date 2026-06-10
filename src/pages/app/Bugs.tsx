@@ -600,3 +600,11 @@ function Section({ label, children }: { label: string; children: any }) {
 function KV({ k, v }: { k: string; v: any }) {
   return <div><span className="text-muted-foreground">{k}:</span> <span className="font-medium">{v || "—"}</span></div>;
 }
+function renderMentions(text: string) {
+  const parts = text.split(/(@[a-zA-Z0-9._%+-]+(?:@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?)/g);
+  return parts.map((p, i) =>
+    p.startsWith("@")
+      ? <span key={i} className="bg-primary/15 text-primary rounded px-1 font-medium">{p}</span>
+      : <span key={i}>{p}</span>
+  );
+}
