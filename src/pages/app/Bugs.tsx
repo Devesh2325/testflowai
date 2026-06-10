@@ -169,6 +169,22 @@ export default function Bugs() {
 
   const openDetail = async (b: Bug) => { setActive(b); await loadComments(b.id); };
 
+  // Realtime: subscribe to new comments on the currently-open bug
+  useEffect(() => {
+    if (!active) return;
+    const ch = supabase
+      .channel(`bug-comments-${active.id}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "bug_comments", filter: `bug_id=eq.${active.id}` },
+        (payload) => {
+          const c = payload.new as Comment;
+          setComments(cs => cs.some(x => x.id === c.id) ? cs : [...cs, c]);
+        })
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "bug_comments", filter: `bug_id=eq.${active.id}` },
+        (payload) => setComments(cs => cs.filter(c => c.id !== (payload.old as any).id)))
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [active?.id]);
+
   const uploadFiles = async (files: FileList | null): Promise<Attachment[]> => {
     if (!files || !user) return [];
     const out: Attachment[] = [];
@@ -239,12 +255,33 @@ export default function Bugs() {
   const addComment = async () => {
     if (!active || !newComment.trim() || !user) return;
     if (!ws) return;
+    const body = newComment.trim();
     const { error } = await supabase.from("bug_comments").insert({
-      bug_id: active.id, owner_id: user.id, author_email: user.email, body: newComment.trim(),
+      bug_id: active.id, owner_id: user.id, author_email: user.email, body,
       workspace_id: ws.id,
     });
     if (error) return toast.error(error.message);
-    setNewComment(""); loadComments(active.id);
+    // Parse @mentions and notify mentioned workspace members
+    const mentions = Array.from(new Set((body.match(/@([a-zA-Z0-9._%+-]+(?:@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?)/g) ?? []).map(m => m.slice(1).toLowerCase())));
+    if (mentions.length) {
+      const mentioned = members.filter(m =>
+        mentions.some(tag => m.email?.toLowerCase() === tag || m.full_name?.toLowerCase().replace(/\s+/g, "") === tag.replace(/\s+/g, ""))
+      );
+      if (mentioned.length) {
+        await supabase.from("notifications").insert(
+          mentioned.map(m => ({
+            user_id: m.user_id,
+            title: `You were mentioned on "${active.title}"`,
+            body: `${user.email}: ${body.slice(0, 160)}`,
+            link: `/app/bugs`,
+            kind: "mention",
+          }))
+        );
+        toast.success(`Notified ${mentioned.length} member(s)`);
+      }
+    }
+    setNewComment("");
+    // Realtime will append; no need to reload
   };
 
   const deleteBug = async (id: string) => {
