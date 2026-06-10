@@ -558,20 +558,21 @@ export default function Bugs() {
                   </div>
                 </Section>
 
-                <Section label={`Comments (${comments.length})`}>
+                <Section label={`Comments (${comments.length}) · live`}>
                   <div className="space-y-2 max-h-60 overflow-y-auto">
                     {comments.map(c => (
                       <div key={c.id} className="text-sm border-l-2 border-primary/40 pl-3 py-1">
                         <div className="text-xs text-muted-foreground">{c.author_email} · {new Date(c.created_at).toLocaleString()}</div>
-                        <div className="whitespace-pre-wrap">{c.body}</div>
+                        <div className="whitespace-pre-wrap">{renderMentions(c.body)}</div>
                       </div>
                     ))}
                     {!comments.length && <p className="text-xs text-muted-foreground">No comments yet.</p>}
                   </div>
                   <div className="flex gap-2 mt-2">
-                    <Textarea rows={2} value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Add a comment…" />
+                    <Textarea rows={2} value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Add a comment… use @email to mention a teammate" />
                     <Button size="icon" onClick={addComment}><Send className="h-4 w-4" /></Button>
                   </div>
+                  <p className="text-[10px] text-muted-foreground mt-1">Tip: type @ to mention a teammate by email — they'll get an in-app notification.</p>
                 </Section>
 
                 <Separator />
