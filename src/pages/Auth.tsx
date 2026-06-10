@@ -25,6 +25,9 @@ export default function Auth() {
   const [email, setEmail] = useState(inviteEmail ?? "");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
 
   const claimInvite = async () => {
     if (!inviteToken) return;
@@ -67,6 +70,20 @@ export default function Auth() {
     setLoading(false);
     if (error) return toast.error(error.message);
     nav("/app");
+  };
+
+  const handleForgot = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const addr = (forgotEmail || email).trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(addr)) return toast.error("Enter a valid email");
+    setForgotLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(addr, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setForgotLoading(false);
+    if (error) return toast.error(error.message);
+    toast.success("Check your inbox for the reset link");
+    setForgotOpen(false);
   };
 
   return (
