@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TestTube2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -25,6 +26,9 @@ export default function Auth() {
   const [email, setEmail] = useState(inviteEmail ?? "");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
 
   const claimInvite = async () => {
     if (!inviteToken) return;
@@ -69,6 +73,20 @@ export default function Auth() {
     nav("/app");
   };
 
+  const handleForgot = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const addr = (forgotEmail || email).trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(addr)) return toast.error("Enter a valid email");
+    setForgotLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(addr, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setForgotLoading(false);
+    if (error) return toast.error(error.message);
+    toast.success("Check your inbox for the reset link");
+    setForgotOpen(false);
+  };
+
   return (
     <div className="min-h-screen grid place-items-center bg-gradient-subtle p-4">
       <div className="w-full max-w-md">
@@ -92,7 +110,15 @@ export default function Auth() {
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-3">
                 <div><Label>Email</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} required /></div>
-                <div><Label>Password</Label><Input type="password" value={password} onChange={e => setPassword(e.target.value)} required /></div>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <Label>Password</Label>
+                    <button type="button" onClick={() => { setForgotEmail(email); setForgotOpen(true); }} className="text-xs text-primary hover:underline">
+                      Forgot password?
+                    </button>
+                  </div>
+                  <Input type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+                </div>
                 <Button disabled={loading} className="w-full bg-gradient-hero border-0 hover:opacity-90">
                   {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Sign in
                 </Button>
@@ -111,6 +137,24 @@ export default function Auth() {
           </Tabs>
         </Card>
       </div>
+
+      <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Reset your password</DialogTitle>
+            <DialogDescription>We'll email you a secure link to set a new password.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleForgot} className="space-y-3">
+            <div>
+              <Label>Email</Label>
+              <Input type="email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} required autoFocus />
+            </div>
+            <Button disabled={forgotLoading} className="w-full bg-gradient-hero border-0 hover:opacity-90">
+              {forgotLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Send reset link
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
