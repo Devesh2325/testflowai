@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TestTube2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -109,7 +110,15 @@ export default function Auth() {
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-3">
                 <div><Label>Email</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} required /></div>
-                <div><Label>Password</Label><Input type="password" value={password} onChange={e => setPassword(e.target.value)} required /></div>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <Label>Password</Label>
+                    <button type="button" onClick={() => { setForgotEmail(email); setForgotOpen(true); }} className="text-xs text-primary hover:underline">
+                      Forgot password?
+                    </button>
+                  </div>
+                  <Input type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+                </div>
                 <Button disabled={loading} className="w-full bg-gradient-hero border-0 hover:opacity-90">
                   {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Sign in
                 </Button>
