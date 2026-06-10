@@ -137,6 +137,24 @@ export default function Auth() {
           </Tabs>
         </Card>
       </div>
+
+      <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Reset your password</DialogTitle>
+            <DialogDescription>We'll email you a secure link to set a new password.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleForgot} className="space-y-3">
+            <div>
+              <Label>Email</Label>
+              <Input type="email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} required autoFocus />
+            </div>
+            <Button disabled={forgotLoading} className="w-full bg-gradient-hero border-0 hover:opacity-90">
+              {forgotLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Send reset link
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
