@@ -1,7 +1,8 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, FolderKanban, FileText, PlayCircle, Bug,
-  BarChart3, Sparkles, BookOpen, GraduationCap, Plug, Settings, LogOut, TestTube2, MessageSquare, Database, Users
+  BarChart3, Sparkles, BookOpen, GraduationCap, Plug, Settings, LogOut, TestTube2, MessageSquare, Database, Users,
+  Bot, Globe, Network, ShieldCheck
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -18,11 +19,20 @@ const main = [
   { title: "Bugs", url: "/app/bugs", icon: Bug },
   { title: "Reports", url: "/app/reports", icon: BarChart3 },
 ];
-const ai = [
+
+const intelligence = [
+  { title: "AI QA Mission", url: "/app/missions", icon: Bot, isNew: true },
   { title: "AI Assistant", url: "/app/ai", icon: Sparkles },
+  { title: "Auto Test (URL)", url: "/app/auto-test", icon: Globe },
+  { title: "Application Explorer", url: "/app/explorer", icon: Network },
+  { title: "Release Readiness", url: "/app/readiness", icon: ShieldCheck },
+];
+
+const resources = [
   { title: "Docs", url: "/app/docs", icon: BookOpen },
   { title: "Learning", url: "/app/learning", icon: GraduationCap },
 ];
+
 const sys = [
   { title: "Master Data", url: "/app/master-data", icon: Database },
   { title: "Team", url: "/app/team", icon: Users },
@@ -38,7 +48,7 @@ export function AppSidebar() {
   const { signOut, user } = useAuth();
   const isActive = (url: string, exact?: boolean) => exact ? pathname === url : pathname === url || pathname.startsWith(url + "/");
 
-  const renderGroup = (label: string, items: typeof main) => (
+  const renderGroup = (label: string, items: { title: string; url: string; icon: any; exact?: boolean; isNew?: boolean }[]) => (
     <SidebarGroup>
       {!collapsed && <SidebarGroupLabel>{label}</SidebarGroupLabel>}
       <SidebarGroupContent>
@@ -48,7 +58,12 @@ export function AppSidebar() {
               <SidebarMenuButton asChild isActive={isActive(item.url, item.exact)}>
                 <NavLink to={item.url} end={item.exact} className="flex items-center gap-3">
                   <item.icon className="h-4 w-4 shrink-0" />
-                  {!collapsed && <span>{item.title}</span>}
+                  {!collapsed && <span className="flex-1">{item.title}</span>}
+                  {!collapsed && item.isNew && (
+                    <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-primary text-primary-foreground">
+                      AI
+                    </span>
+                  )}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -75,7 +90,8 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         {renderGroup("Workspace", main)}
-        {renderGroup("Intelligence", ai)}
+        {renderGroup("Intelligence", intelligence)}
+        {renderGroup("Resources", resources)}
         {renderGroup("System", sys)}
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border">

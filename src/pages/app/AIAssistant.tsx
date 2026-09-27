@@ -124,7 +124,7 @@ export default function AIAssistant() {
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
                 {loading ? "Generating..." : "Generate test cases"}
               </Button>
-              <span className="text-xs text-muted-foreground">Powered by Lovable AI · Gemini</span>
+              <span className="text-xs text-muted-foreground">Powered by AI · Gemini</span>
             </div>
           </Card>
 

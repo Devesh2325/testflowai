@@ -19,8 +19,16 @@ Deno.serve(async (req) => {
     const { description, test_case_title, context } = await req.json();
     if (!description) return j({ error: "description required" }, 400);
 
-    const key = Deno.env.get("LOVABLE_API_KEY");
-    if (!key) return j({ error: "AI not configured" }, 500);
+    const apiKey = Deno.env.get("GEMINI_API_KEY") || Deno.env.get("OPENAI_API_KEY") || Deno.env.get("AI_API_KEY");
+    if (!apiKey) return j({ error: "AI API key not configured. Please set GEMINI_API_KEY or OPENAI_API_KEY in Supabase secrets." }, 500);
+
+    const isOpenAI = Boolean(Deno.env.get("OPENAI_API_KEY")) && !Deno.env.get("GEMINI_API_KEY");
+    const baseUrl = Deno.env.get("AI_BASE_URL") || (
+      isOpenAI
+        ? "https://api.openai.com/v1/chat/completions"
+        : "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+    );
+    const model = Deno.env.get("AI_MODEL") || (isOpenAI ? "gpt-4o-mini" : "gemini-2.5-flash");
 
     const prompt = `You are a senior QA engineer. Generate a structured bug report as strict JSON with keys: title (short), severity (low|medium|high|critical), priority (low|medium|high|urgent), description, steps_to_reproduce (numbered), expected_result, actual_result, environment, browser, device, app_version, tags (string array of 1-4 short tags). 
 Source description: ${description}
@@ -28,11 +36,11 @@ ${test_case_title ? `Linked test case: ${test_case_title}` : ""}
 ${context ? `Context: ${context}` : ""}
 Return ONLY the JSON object.`;
 
-    const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const r = await fetch(baseUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model,
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },
       }),

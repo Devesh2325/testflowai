@@ -16,6 +16,10 @@ import TestCases from "./pages/app/TestCases";
 import TestRuns from "./pages/app/TestRuns";
 import Bugs from "./pages/app/Bugs";
 import AIAssistant from "./pages/app/AIAssistant";
+import Missions from "./pages/app/Missions";
+import AppExplorer from "./pages/app/AppExplorer";
+import AutoTest from "./pages/app/AutoTest";
+import ReleaseReadiness from "./pages/app/ReleaseReadiness";
 import Learning from "./pages/app/Learning";
 import Reports from "./pages/app/Reports";
 import Integrations from "./pages/app/Integrations";
@@ -46,7 +50,11 @@ const App = () => (
               <Route path="test-cases" element={<TestCases />} />
               <Route path="test-runs" element={<TestRuns />} />
               <Route path="bugs" element={<Bugs />} />
+              <Route path="missions" element={<Missions />} />
               <Route path="ai" element={<AIAssistant />} />
+              <Route path="auto-test" element={<AutoTest />} />
+              <Route path="explorer" element={<AppExplorer />} />
+              <Route path="readiness" element={<ReleaseReadiness />} />
               <Route path="learning" element={<Learning />} />
               <Route path="reports" element={<Reports />} />
               <Route path="docs" element={<Docs />} />

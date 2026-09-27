@@ -67,20 +67,25 @@ export default function Dashboard() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-4">
-        <Card className="p-6 lg:col-span-2 bg-gradient-hero text-primary-foreground border-0 shadow-elegant relative overflow-hidden">
-          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_70%_30%,white,transparent_50%)]" />
-          <div className="relative">
-            <div className="flex items-center gap-2 mb-2">
-              <Shield className="h-4 w-4" />
-              <span className="text-sm opacity-90">AI Release Readiness</span>
+        <Link to="/app/readiness" className="lg:col-span-2 block group">
+          <Card className="p-6 bg-gradient-hero text-primary-foreground border-0 shadow-elegant relative overflow-hidden h-full group-hover:opacity-95 transition-all">
+            <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_70%_30%,white,transparent_50%)]" />
+            <div className="relative">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Shield className="h-4 w-4" />
+                  <span className="text-sm opacity-90 font-medium">AI Release Readiness</span>
+                </div>
+                <span className="text-xs opacity-75 underline">View Analysis →</span>
+              </div>
+              <div className="text-5xl font-bold mb-3">{readiness}%</div>
+              <Progress value={readiness} className="bg-white/20" />
+              <p className="mt-4 text-sm opacity-90">
+                {readiness >= 80 ? "Strong signals — ready to ship." : readiness >= 50 ? "Moderate risk — review failing areas." : "High risk — stabilize before release."}
+              </p>
             </div>
-            <div className="text-5xl font-bold mb-3">{readiness}%</div>
-            <Progress value={readiness} className="bg-white/20" />
-            <p className="mt-4 text-sm opacity-90">
-              {readiness >= 80 ? "Strong signals — ready to ship." : readiness >= 50 ? "Moderate risk — review failing areas." : "High risk — stabilize before release."}
-            </p>
-          </div>
-        </Card>
+          </Card>
+        </Link>
 
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-4">
@@ -91,6 +96,50 @@ export default function Dashboard() {
           <Progress value={stats.passRate} />
           <div className="mt-4 text-xs text-muted-foreground">Across all executed test cases</div>
         </Card>
+      </div>
+
+      {/* Autonomous QA Agent Pulse (Section 24) */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <h2 className="text-base font-semibold">Autonomous QA Agent Pulse</h2>
+          </div>
+          <Link to="/app/missions" className="text-xs text-primary hover:underline font-medium">
+            Launch AI Mission →
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <Link to="/app/missions">
+            <Card className="p-4 bg-gradient-card hover:border-primary/40 transition-all">
+              <div className="text-xs text-muted-foreground">AI QA Missions</div>
+              <div className="text-2xl font-bold mt-1 text-primary">Autonomous</div>
+              <div className="text-[11px] text-muted-foreground mt-1">Plan ➔ Explore ➔ Verify</div>
+            </Card>
+          </Link>
+          <Link to="/app/explorer">
+            <Card className="p-4 bg-gradient-card hover:border-primary/40 transition-all">
+              <div className="text-xs text-muted-foreground">Application Explorer</div>
+              <div className="text-2xl font-bold mt-1">Mapped</div>
+              <div className="text-[11px] text-muted-foreground mt-1">Routes & Components</div>
+            </Card>
+          </Link>
+          <Link to="/app/auto-test">
+            <Card className="p-4 bg-gradient-card hover:border-primary/40 transition-all">
+              <div className="text-xs text-muted-foreground">Auto Test URL</div>
+              <div className="text-2xl font-bold mt-1 text-accent">Instant</div>
+              <div className="text-[11px] text-muted-foreground mt-1">Smoke run in seconds</div>
+            </Card>
+          </Link>
+          <Link to="/app/bugs">
+            <Card className="p-4 bg-gradient-card hover:border-primary/40 transition-all">
+              <div className="text-xs text-muted-foreground">AI Bug Investigator</div>
+              <div className="text-2xl font-bold mt-1 text-destructive">{stats.openBugs}</div>
+              <div className="text-[11px] text-muted-foreground mt-1">Verified defect triage</div>
+            </Card>
+          </Link>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-4">
@@ -107,8 +156,8 @@ export default function Dashboard() {
             <Sparkles className="h-4 w-4 text-primary" />
             <h3 className="font-semibold">Quick start with AI</h3>
           </div>
-          <p className="text-sm text-muted-foreground mb-4">Generate your first 5 test cases from a simple requirement.</p>
-          <Link to="/app/ai" className="text-sm font-medium text-primary hover:underline">Open AI Assistant →</Link>
+          <p className="text-sm text-muted-foreground mb-4">Launch your first autonomous testing mission on any web application URL.</p>
+          <Link to="/app/missions" className="text-sm font-medium text-primary hover:underline">Deploy AI QA Engineer →</Link>
         </Card>
       </div>
     </div>

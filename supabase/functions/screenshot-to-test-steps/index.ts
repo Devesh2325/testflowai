@@ -19,8 +19,16 @@ Deno.serve(async (req) => {
     const { image_base64, image_url, context } = await req.json();
     if (!image_base64 && !image_url) return j({ error: "image_base64 or image_url required" }, 400);
 
-    const key = Deno.env.get("LOVABLE_API_KEY");
-    if (!key) return j({ error: "AI not configured" }, 500);
+    const apiKey = Deno.env.get("GEMINI_API_KEY") || Deno.env.get("OPENAI_API_KEY") || Deno.env.get("AI_API_KEY");
+    if (!apiKey) return j({ error: "AI API key not configured. Please set GEMINI_API_KEY or OPENAI_API_KEY in Supabase secrets." }, 500);
+
+    const isOpenAI = Boolean(Deno.env.get("OPENAI_API_KEY")) && !Deno.env.get("GEMINI_API_KEY");
+    const baseUrl = Deno.env.get("AI_BASE_URL") || (
+      isOpenAI
+        ? "https://api.openai.com/v1/chat/completions"
+        : "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+    );
+    const model = Deno.env.get("AI_MODEL") || (isOpenAI ? "gpt-4o-mini" : "gemini-2.5-flash");
 
     const imageContent = image_url
       ? { type: "image_url", image_url: { url: image_url } }
@@ -48,11 +56,11 @@ Deno.serve(async (req) => {
       },
     }];
 
-    const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const r = await fetch(baseUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model,
         messages: [{
           role: "user",
           content: [

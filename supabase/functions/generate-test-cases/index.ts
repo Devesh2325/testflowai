@@ -14,8 +14,16 @@ serve(async (req) => {
       return j({ error: "requirement is required" }, 400);
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    const apiKey = Deno.env.get("GEMINI_API_KEY") || Deno.env.get("OPENAI_API_KEY") || Deno.env.get("AI_API_KEY");
+    if (!apiKey) return j({ error: "AI API key not configured. Please set GEMINI_API_KEY or OPENAI_API_KEY in Supabase secrets." }, 500);
+
+    const isOpenAI = Boolean(Deno.env.get("OPENAI_API_KEY")) && !Deno.env.get("GEMINI_API_KEY");
+    const baseUrl = Deno.env.get("AI_BASE_URL") || (
+      isOpenAI
+        ? "https://api.openai.com/v1/chat/completions"
+        : "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+    );
+    const model = Deno.env.get("AI_MODEL") || (isOpenAI ? "gpt-4o-mini" : "gemini-2.5-flash");
 
     const includeGherkin = format === "gherkin" || format === "both";
 
@@ -56,11 +64,11 @@ serve(async (req) => {
       ? "You are a senior QA engineer. Generate clear, atomic, prioritized test cases including positive, negative, and edge cases. For each test case ALSO output a full Gherkin BDD scenario (Feature, Scenario, Given/When/Then/And) in the 'gherkin' field."
       : "You are a senior QA engineer. Generate clear, atomic, prioritized test cases including positive, negative, and edge cases.";
 
-    const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const resp = await fetch(baseUrl, {
       method: "POST",
-      headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model,
         messages: [
           { role: "system", content: sys },
           { role: "user", content: `Generate ${count} thorough test cases for this requirement:\n\n${requirement}` },
