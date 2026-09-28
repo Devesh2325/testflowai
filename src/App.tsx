@@ -20,6 +20,7 @@ import Missions from "./pages/app/Missions";
 import AppExplorer from "./pages/app/AppExplorer";
 import AutoTest from "./pages/app/AutoTest";
 import ReleaseReadiness from "./pages/app/ReleaseReadiness";
+import QARecorderView from "./pages/app/QARecorderView";
 import Learning from "./pages/app/Learning";
 import Reports from "./pages/app/Reports";
 import Integrations from "./pages/app/Integrations";
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="missions" element={<Missions />} />
               <Route path="ai" element={<AIAssistant />} />
               <Route path="auto-test" element={<AutoTest />} />
+              <Route path="recorder" element={<QARecorderView />} />
               <Route path="explorer" element={<AppExplorer />} />
               <Route path="readiness" element={<ReleaseReadiness />} />
               <Route path="learning" element={<Learning />} />

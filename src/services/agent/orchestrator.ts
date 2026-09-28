@@ -118,7 +118,7 @@ export class AgentOrchestrator {
       this.emitStep({
         phase: "TEST_DESIGN",
         agent: "TestDesigner",
-        action: `Generated ${this.scenarios.length} test scenarios across ${this.config.scope.join(", ")} scope.`,
+        action: `Autonomous Test Suite: Generated ${this.scenarios.length} scenarios covering discovered pages, forms, and ${this.config.scope.join(", ")} scope.`,
         status: "success",
         durationMs: Math.round(performance.now() - designStart),
       });

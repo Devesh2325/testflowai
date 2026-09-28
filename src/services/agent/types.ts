@@ -49,7 +49,7 @@ export interface MissionConfig {
   workspaceId?: string;
   userId?: string;
   specificModule?: string;
-  maxTestCases?: number;
+  maxTestCases?: number | "auto";
   autoHealEnabled?: boolean;
 }
 

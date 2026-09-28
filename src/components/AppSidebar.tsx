@@ -2,7 +2,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, FolderKanban, FileText, PlayCircle, Bug,
   BarChart3, Sparkles, BookOpen, GraduationCap, Plug, Settings, LogOut, TestTube2, MessageSquare, Database, Users,
-  Bot, Globe, Network, ShieldCheck
+  Bot, Globe, Network, ShieldCheck, Video
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -22,6 +22,7 @@ const main = [
 
 const intelligence = [
   { title: "AI QA Mission", url: "/app/missions", icon: Bot, isNew: true },
+  { title: "QA Recorder", url: "/app/recorder", icon: Video, isNew: true },
   { title: "AI Assistant", url: "/app/ai", icon: Sparkles },
   { title: "Auto Test (URL)", url: "/app/auto-test", icon: Globe },
   { title: "Application Explorer", url: "/app/explorer", icon: Network },

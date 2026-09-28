@@ -79,7 +79,6 @@ export default function Missions() {
     password: string;
     scope: TestingScopeItem[];
     projectId: string;
-    maxTestCases: number;
   }>({
     name: "Autonomous QA Regression",
     targetUrl: "https://example.com",
@@ -93,7 +92,6 @@ export default function Missions() {
     password: "",
     scope: ["functional", "ui", "responsive", "form"],
     projectId: "",
-    maxTestCases: 5,
   });
 
   // Runner state
@@ -161,7 +159,6 @@ export default function Missions() {
       projectId: form.projectId,
       workspaceId: ws?.id,
       userId: user?.id,
-      maxTestCases: form.maxTestCases,
       autoHealEnabled: true,
     };
 
@@ -435,17 +432,11 @@ export default function Missions() {
                   </Select>
                 </div>
                 <div>
-                  <Label className="text-xs">Scenarios Count</Label>
-                  <Select
-                    value={String(form.maxTestCases)}
-                    onValueChange={v => setForm({ ...form, maxTestCases: Number(v) })}
-                    disabled={isRunning}
-                  >
-                    <SelectTrigger className="text-xs"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {[3, 5, 8, 10].map(n => <SelectItem key={n} value={String(n)}>{n} scenarios</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <Label className="text-xs">Scenario Generation</Label>
+                  <div className="h-9 px-3 border rounded-md bg-primary/5 border-primary/20 flex items-center gap-2 text-xs font-medium text-foreground">
+                    <Sparkles className="h-3.5 w-3.5 text-primary shrink-0 animate-pulse" />
+                    <span className="truncate">Auto (Discovered Footprint)</span>
+                  </div>
                 </div>
               </div>
 
@@ -836,13 +827,16 @@ export default function Missions() {
               </p>
             </div>
 
-            <div className="p-3 rounded-lg border bg-muted/30 space-y-1.5">
-              <div className="font-medium text-foreground">How to launch a local browser runner:</div>
-              <code className="block bg-background p-2 rounded text-[11px] font-mono select-all">
-                chrome.exe --remote-debugging-port=9222
+            <div className="p-3 rounded-lg border bg-muted/30 space-y-2">
+              <div className="font-medium text-foreground">How to launch the built-in browser runner:</div>
+              <div className="text-[11px] text-muted-foreground">
+                Open a new terminal in your project directory and run:
+              </div>
+              <code className="block bg-background p-2 rounded text-[12px] font-mono text-primary font-semibold select-all border">
+                npm run runner
               </code>
               <p className="text-[11px] text-muted-foreground">
-                Or start Playwright daemon: <code>npx playwright run-server --port 9222</code>
+                This automatically opens Chrome/Edge in CDP automation mode and binds to <code>http://localhost:9222</code> for real clicks, typing, and screenshots.
               </p>
             </div>
           </div>

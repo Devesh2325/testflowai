@@ -28,7 +28,6 @@ export default function AutoTest() {
       device: "desktop",
       authRequired: false,
       scope: ["functional", "ui", "responsive"],
-      maxTestCases: 3,
     };
 
     const orch = new AgentOrchestrator(config);

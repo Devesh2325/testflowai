@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "runner": "node scripts/browser-runner.mjs",
+    "qa:dev": "npm --prefix qa-recorder run dev",
+    "qa:start": "npm --prefix qa-recorder start"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
